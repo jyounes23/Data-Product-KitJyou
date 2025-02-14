@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 ## Installation of OpenSearch
 
-1. Create a .env file containing the following:
+1. Create a .env file in the opensearch directory containing the following:
 ```bash
 OPENSEARCH_INITIAL_PASSWORD=<password>
 OPENSEARCH_HOST=localhost
@@ -58,7 +58,7 @@ NOTE: query.py is currently hard coded to search for the temr "drug", but you ca
 
 1. To delete data from the OpenSearch instance, run the following command:
 ```bash
-python opensearch/delete_client.py
+python opensearch/delete_index.py
 ```
 2. To stop the OpenSearch container, run the following command:
 ```bash
@@ -67,19 +67,20 @@ docker-compose -f opensearch/docker-compose.yml down
 
 ## Installation of SQL
 
-1. Create a .env file containing the following:
+1. Create a .env file in the sql directory containing the following:
 ```bash
 POSTGRES_DB=<database name>
 POSTGRES_USER=<username>
 POSTGRES_PASSWORD=<password>
-POSTGRES_HOST=<hostname>
+POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 ```
+NOTE: When running locally, you can set the username and password to any desired credentials.
 
 ## Using SQL
 1. To start the SQL container, run the following command:
 ```bash
-docker-compose -f sql/docker-compose.yml up -d
+docker-compose -f sql/docker-compose.yaml up -d
 ```
 
  * You can connect to the database using the following command:
@@ -104,7 +105,7 @@ docker-compose -f sql/docker-compose.yml up -d
 ## Cleanup
    1. To stop the SQL container, run the following command:
 ```bash
-docker-compose -f sql/docker-compose.yml down
+docker-compose -f sql/docker-compose.yaml down
 ```
 
 If you have any questions or need help, please reach out to a member of the Data Product team.
