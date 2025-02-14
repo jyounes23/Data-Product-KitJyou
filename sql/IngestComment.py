@@ -97,7 +97,7 @@ def main():
     json_file_path = sys.argv[1]
     load_dotenv()
     dbname = os.getenv("POSTGRES_DB")
-    username = os.getenv("POSTGRES_USERNAME")
+    username = os.getenv("POSTGRES_USER")
     password = os.getenv("POSTGRES_PASSWORD")
     host = os.getenv("POSTGRES_HOST")
     port = os.getenv("POSTGRES_PORT")

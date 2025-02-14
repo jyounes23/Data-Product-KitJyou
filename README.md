@@ -70,7 +70,7 @@ docker-compose -f opensearch/docker-compose.yml down
 1. Create a .env file containing the following:
 ```bash
 POSTGRES_DB=<database name>
-POSTGRES_USERNAME=<username>
+POSTGRES_USER=<username>
 POSTGRES_PASSWORD=<password>
 POSTGRES_HOST=<hostname>
 POSTGRES_PORT=5432
@@ -84,7 +84,7 @@ docker-compose -f sql/docker-compose.yml up -d
 
  * You can connect to the database using the following command:
  ```bash
-    psql -h localhost -U $POSTGRES_USERNAME -d $POSTGRES_DB
+    psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB
  ```
 * You can run the following command to create the table and insert data:
 ```bash
