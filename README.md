@@ -15,28 +15,22 @@ pip install -r requirements.txt
 
 ## Installation of OpenSearch
 
-1. Set your password as an environment variable for the docker-compose file.
-```bash
-export OPENSEARCH_INITIAL_ADMIN_PASSWORD=<password>
-```
-NOTE: including a $ or a ! in the password as a special character may lead to issues when running docker compose later on (the following text gets interpreted as a shell variable), so avoid using them in your password.
-
-
-2. Create a .env file containing the following:
+1. Create a .env file containing the following:
 ```bash
 OPENSEARCH_INITIAL_PASSWORD=<password>
 OPENSEARCH_HOST=localhost
 OPENSEARCH_PORT=9200
 S3_BUCKET_NAME=<bucket-name> 
 ```
+NOTE: including a $ or a ! in the password as a special character may lead to issues when running docker compose later on (the following text gets interpreted as a shell variable), so avoid using them in your password.
 NOTE: The S3 Bucket we are using for sample data is 'docket-samples`. You can use your own bucket by changing the value of S3_BUCKET_NAME in the .env file.
 
-3. Run the docker-compose file (make sure docker is running on your machine)
+2. Run the docker-compose file (make sure docker is running on your machine)
 ```bash
 docker-compose -f opensearch/docker-compose.yml up -d 
 ```
 
-6. Confim that the OpenSearch container is running and is accessible by running the following command:
+3. Confim that the OpenSearch container is running and is accessible by running the following command:
 ```bash
 docker -f opensearch/docker-compose.yml ps
 ```
