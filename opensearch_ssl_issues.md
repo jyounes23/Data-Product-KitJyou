@@ -3,7 +3,11 @@
 If you are facing an SSL issue while using opensearch, you can use the following code to solve the issue.
 
 ### **Error Message Example:**
-![alt text](<Curl_error (1).jpg>)
+```
+File."/Users/samuelcadiz/Courses/capstone/OpenSearch_Exploration/.venv/lib/python3.13/site-packages/opensearchpy/connection/http_urllib3.py", line 292, in perform_request raise SSLError ("N/A" ,
+str (e), e)
+opensearchpy-exceptions.SSLError: ConnectionError([SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1018)) caused by: SSLError([SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c: 1018) )
+```
 
 **Step 1: Open the Ingest.py file**
 - Within the files head down to line 47
