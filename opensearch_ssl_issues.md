@@ -5,14 +5,13 @@ If you are facing an SSL issue while using opensearch, you can use the following
 ### **Error Message Example:**
 ![alt text](<Curl_error (1).jpg>)
 
-**Step 1: Open the Ingest.py file**
-- Within the files head down to line 47
-    - comment out the lines 47-51
+**Instructions:**
+- Enter the create_client.py
+- Within the file head down to line 30
+    - comment out the lines 34 -38
     - Add `connection_class=RequestsHttpConnection` within the parentheses of the opensearch client
         - Make sure to import RequestsHttpConnection from opensearchpy at the top of the file
 
-**Step 2: Open the query.py file**
-- Do the same as step 1 but for lines 20-24
 
 
 ### Result: This should now allow you to use opensearch without any SSL issues
