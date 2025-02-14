@@ -80,7 +80,7 @@ NOTE: When running locally, you can set the username and password to any desired
 ## Using SQL
 1. To start the SQL container, run the following command:
 ```bash
-docker-compose -f sql/docker-compose.yaml up -d
+docker-compose -f sql/docker-compose.yml up -d
 ```
 
  * You can connect to the database using the following command:
@@ -105,7 +105,7 @@ docker-compose -f sql/docker-compose.yaml up -d
 ## Cleanup
    1. To stop the SQL container, run the following command:
 ```bash
-docker-compose -f sql/docker-compose.yaml down
+docker-compose -f sql/docker-compose.yml down
 ```
 
 If you have any questions or need help, please reach out to a member of the Data Product team.
