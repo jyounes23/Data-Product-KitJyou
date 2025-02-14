@@ -10,7 +10,7 @@ opensearchpy-exceptions.SSLError: ConnectionError([SSL: WRONG_VERSION_NUMBER] wr
 ```
 
 **Instructions:**
-- Enter the create_client.py
+- Enter the create_client.py file
 - Within the file head down to line 30
     - comment out the lines 34 -38
     - Add `connection_class=RequestsHttpConnection` within the parentheses of the opensearch client
