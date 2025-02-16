@@ -83,17 +83,13 @@ NOTE: When running locally, you can set the username and password to any desired
 docker-compose -f sql/docker-compose.yml up -d
 ```
 
- * You can connect to the database using the following command:
- ```bash
-    psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB
- ```
 * You can run the following command to create the table and insert data:
 ```bash
-    python sql/CreateTables.py
+python sql/CreateTables.py
 ```
 * You can run the following command to Drop the table:
 ```bash
-    python sql/DropTables.py
+python sql/DropTables.py
 ```
 * You can run the following command to ingest dockets, comments, documents respectively:
 ```bash
@@ -101,6 +97,35 @@ docker-compose -f sql/docker-compose.yml up -d
     python sql/IngestComment.py 
     python sql/IngestDocument.py
 ```
+
+* To ingest a docket with all its contents from the Mirrulations S3 bucket, you can run the following command:
+```bash
+python sql/IngestFromS3.py <docket_id>
+```
+
+### Querying
+
+Queries can be made through the database connection or by running the `Query.py` script:
+
+1. <u>**PSQL Interface**</u>
+* You can connect to the database using the following command:
+ ```bash
+psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB
+ ```
+
+* You can begin querying once the connection has been established. To exit psql, type:
+```bash
+\q
+```
+
+2. <u>**Query.py script**</u>
+    * This command allows the user to input a SQL query:
+```bash
+python sql/Query.py "<User Query>"
+```
+NOTE: Queries are limited to SELECT statements and must be written within the quotation marks.The script must be rerun per query issued. Output is in JSON format.
+
+Troubleshooting tips are available in the <u>[SQL Troubleshooting Guide](sql/sql_troubleshoot.md)</u>
 
 ## Cleanup
    1. To stop the SQL container, run the following command:
