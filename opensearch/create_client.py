@@ -54,6 +54,7 @@ def create_client():
         verify_certs=True,
         connection_class=RequestsHttpConnection,
         pool_maxsize=20,
+        timeout=60
     )
 
     return client
