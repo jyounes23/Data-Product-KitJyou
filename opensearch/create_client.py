@@ -23,7 +23,7 @@ def create_client():
         raise ValueError('Please set the environment variables OPENSEARCH_HOST and OPENSEARCH_PORT')
     
     if host == 'localhost':
-        auth = ('admin', os.getenv('OPENSEARCH_INITIAL_PASSWORD'))
+        auth = ('admin', os.getenv('OPENSEARCH_INITIAL_ADMIN_PASSWORD'))
 
         ca_certs_path = certifi.where()
         # Create the client with SSL/TLS enabled, but hostname verification disabled.
