@@ -17,7 +17,7 @@ pip install -r requirements.txt
 
 1. Create a .env file in the opensearch directory containing the following:
 ```bash
-OPENSEARCH_INITIAL_PASSWORD=<password>
+OPENSEARCH_INITIAL_ADMIN_PASSWORD=<password>
 OPENSEARCH_HOST=localhost
 OPENSEARCH_PORT=9200
 S3_BUCKET_NAME=<bucket-name> 
