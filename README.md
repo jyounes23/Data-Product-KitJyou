@@ -29,7 +29,7 @@ cd opensearch
 **NOTE:** Including a `$` or a `!` in the password as a special character may lead to issues when running docker compose later on (the following text gets interpreted as a shell variable), so avoid using them in your password.
 
 ```bash
-OPENSEARCH_INITIAL_PASSWORD=<password>
+OPENSEARCH_INITIAL_ADMIN_PASSWORD=<password>
 OPENSEARCH_HOST=localhost
 OPENSEARCH_PORT=9200
 S3_BUCKET_NAME=<bucket-name> 
