@@ -99,7 +99,7 @@ NOTE: When running locally, you can set the username and password to any desired
 ## Using SQL
 1. To start the SQL container, run the following command:
 ```bash
-docker compose -f docker-compose.yaml up -d
+docker compose -f docker-compose.yml up -d
 ```
 
 * You can run the following command to create the table and insert data:
@@ -153,7 +153,7 @@ python DropTables.py
 
 1. To stop the SQL container, run the following command:
 ```bash
-docker compose -f docker-compose.yaml down
+docker compose -f docker-compose.yml down
 ```
 
 If you have any further questions or need help, please reach out to a member of the Data Product team.
