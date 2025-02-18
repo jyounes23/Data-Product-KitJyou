@@ -38,12 +38,12 @@ S3_BUCKET_NAME=<bucket-name>
 
 3. Run the docker-compose file (make sure docker is running on your machine)
 ```bash
-docker compose -f docker-compose.yml up -d 
+docker-compose up -d
 ```
 
 4. Confim that the OpenSearch container is running and is accessible by running the following command:
 ```bash
-docker -f docker-compose.yml ps
+docker-compose ps
 ```
 and 
 ```bash
