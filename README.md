@@ -3,6 +3,16 @@ A guide to acquire, install and deploy the search capability via API, for SQL an
 
 ## Prerequisites
 - [Docker](https://docs.docker.com/get-docker/)
+    * Certain issues with Docker may be resolved by uninstalling and reinstalling using homebrew:
+    ```bash
+    brew uninstall --cask docker --force
+
+    brew uninstall --formula docker --force
+
+    brew install --cask docker
+    ```
+    * This will work even if you did not install Docker with homebrew originally.
+
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Python](https://www.python.org/downloads/)
 - [libpq](https://www.postgresql.org/docs/current/libpq.html#:~:text=libpq%20is%20the%20C%20application,the%20results%20of%20these%20queries.)
@@ -56,15 +66,16 @@ Run `source .env` to load the environment variables into the current shell sessi
 docker compose up -d
 ```
 
-4. Confim that the OpenSearch container is running and is accessible by running the following command:
+4. Confirm that the OpenSearch container is running and is accessible by running the following commands:
 ```bash
 docker compose ps
 ```
-and 
+**Note:** There should be 3 opensearch containers running upon successful execution. If you are having issues, you may want to revisit your password as the containers will not start with a low strength password. [Visit the OpenSearch troubleshooting guide for further assistance.](opensearch/opensearch_troubleshoot.md)
+
+
 ```bash
 curl https://localhost:9200 -ku admin:<your-admin-password>
 ```
-**Note:** There should be 3 opensearch containers running upon successful execution. If you are having issues, you may want to revisit your password as the containers will not start with a low strength password. [Visit the OpenSearch troubleshooting guide for further assistance.](opensearch/opensearch_troubleshoot.md)
 
 
 ## Using OpenSearch
@@ -73,13 +84,13 @@ curl https://localhost:9200 -ku admin:<your-admin-password>
 ```bash
 python ingest.py
 ```
-NOTE: This may take a few minutes to complete. It will produce one line of output for each document ingested.
+**NOTE:** This may take a few minutes to complete. It will produce one line of output for each document ingested.
 
 2. To query the data, run the following command:
 ```bash
 python query.py
 ```
-NOTE: `query.py` is currently hard coded to search for the term "<ins>drug</ins>", but you can change this to any term you would like to search for.
+**NOTE:** `query.py` is currently hard coded to search for the term "<ins>drug</ins>", but you can change this to any term you would like to search for.
 
 ## Cleanup 
 
@@ -111,7 +122,7 @@ POSTGRES_PASSWORD=<password>
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 ```
-NOTE: When running locally, you can set the username and password to any desired credentials. Example credentials are displayed above.
+**NOTE:** When running locally, you can set the username and password to any desired credentials. Example credentials are displayed above.
 
 Run `source .env` to load the environment variables into the current shell session in case of any credential issues.
 
@@ -179,7 +190,7 @@ python Query.py "SELECT docket_id FROM dockets;"
 ```
  An example query is provided above. 
 
-NOTE: Queries are limited to SELECT statements and must be written within the quotation marks.The script must be rerun per query issued; output is returned in JSON format.
+**NOTE:** Queries are limited to SELECT statements and must be written within the quotation marks.The script must be rerun per query issued; output is returned in JSON format.
 
 ## Cleanup
 
