@@ -1,6 +1,6 @@
-from IngestComment import insert_comment
-from IngestDocket import insert_docket
-from IngestDocument import insert_document
+from utilities.ingest_comment import insert_comment
+from utilities.ingest_docket import insert_docket
+from utilities.ingest_document import insert_document
 import boto3
 import sys
 import os
@@ -55,12 +55,16 @@ def get_s3_files(bucket):
     return [file.key for file in files if file.key.endswith(".json")]
 
 def main():
-    bucket_name = "docket-samples"
+    
+    if len(sys.argv) < 2:
+        print("Usage: python IngestFromBucket.py <bucket-name>")
+        sys.exit(1)
+    
+    bucket_name = sys.argv[1]
     s3 = boto3.resource(service_name="s3", region_name="us-east-1")
     bucket = s3.Bucket(bucket_name)
     files = get_s3_files(bucket)
     sorted_files = sort_files(files)
-  #  print(sorted_files)
     load_dotenv()
     conn_params = {
         "dbname": os.getenv("POSTGRES_DB"),

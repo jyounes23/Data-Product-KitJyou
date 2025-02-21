@@ -1,6 +1,6 @@
-from IngestComment import insert_comment
-from IngestDocket import insert_docket
-from IngestDocument import insert_document
+from utilities.ingest_comment import insert_comment
+from utilities.ingest_docket import insert_docket
+from utilities.ingest_document import insert_document
 import boto3
 import sys
 import os
@@ -85,11 +85,10 @@ def get_s3_files(bucket, docket_id: str):
 def main():
     # Get docket_id from command line arguments
     if len(sys.argv) < 2:
-        print("Usage: python IngestFromS3.py <docket_id>")
+        print("Usage: python IngestIndividualDocket.py <docket_id>")
         sys.exit(1)
 
     docket_id = sys.argv[1]  # Get docket_id from command line
-    print(f"docket_id: '{docket_id}'")
     bucket_name = "mirrulations"
     s3 = boto3.resource(service_name="s3", region_name="us-east-1")
 
