@@ -49,13 +49,13 @@ cd opensearch
 
 **NOTE:** Including a `$` or a `!` in the password as a special character may lead to issues when running docker compose later on (the following text gets interpreted as a shell variable), so avoid using them in your password.
 
-**NOTE:** When running locally, you can set the username and password to any desired credentials. **An example password is included below:**
+**NOTE:** When running locally, you can set the username and password to any desired credentials. **Example credentials are included below:**
 
 ```bash
 OPENSEARCH_INITIAL_ADMIN_PASSWORD=C4nzUMkFu^e4N2
 OPENSEARCH_HOST=localhost
 OPENSEARCH_PORT=9200
-S3_BUCKET_NAME=<bucket-name> 
+S3_BUCKET_NAME=docket-samples
 ```
 **NOTE:** <ins>The S3 Bucket we are using for sample data is `docket-samples`</ins>. You can use your own bucket by changing the value of S3_BUCKET_NAME in the `.env` file.
 
@@ -116,9 +116,9 @@ cd sql
 
 2. Create an `.env` file in the `sql` directory containing the following:
 ```bash
-POSTGRES_DB=<database>
-POSTGRES_USER=<username>
-POSTGRES_PASSWORD=<password>
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 ```
