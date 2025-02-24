@@ -139,10 +139,9 @@ python CreateTables.py
 
 To ingest all the sample data from the S3 bucket, you can run the following command:
 ```bash
-python IngestEntireS3.py
+python IngestFromBucket.py docket-samples
 ```
 **NOTE:** This may take a few minutes to complete.
-
 
 * *Optional:* To ingest an individual docket with all its contents from the Mirrulations S3 bucket, you can run the following command:
 ```bash
@@ -151,12 +150,7 @@ python IngestFromS3.py <docket_id>
 **NOTE:** Example docket: *DOS-2022-0004*
 
 
-* *Optional:* You can run the following command to ingest dockets, comments, and documents respectively:
-```bash
-    python IngestDocket.py
-    python IngestComment.py 
-    python IngestDocument.py
-```
+**IMPORTANT:** Additional documentation for all the scripts for SQL can be found [here](sql/syntax.md)
 
 ### Querying
 

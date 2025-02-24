@@ -1,6 +1,6 @@
-from IngestComment import insert_comment
-from IngestDocket import insert_docket
-from IngestDocument import insert_document
+from utilities.ingest_comment import insert_comment
+from utilities.ingest_docket import insert_docket
+from utilities.ingest_document import insert_document
 import boto3
 import sys
 import os
@@ -85,34 +85,37 @@ def get_s3_files(bucket, docket_id: str):
 def main():
     # Get docket_id from command line arguments
     if len(sys.argv) < 2:
-        print("Usage: python IngestFromS3.py <docket_id>")
+        print("Usage: python IngestDockets.py <path to file>")
         sys.exit(1)
+        
+    file_path = sys.argv[1]  
+    
+    with open(file_path, 'r') as file:
+        for line in file:
+            docket_id = line.strip()
+            bucket_name = "mirrulations"
+            s3 = boto3.resource(service_name="s3", region_name="us-east-1")
 
-    docket_id = sys.argv[1]  # Get docket_id from command line
-    print(f"docket_id: '{docket_id}'")
-    bucket_name = "mirrulations"
-    s3 = boto3.resource(service_name="s3", region_name="us-east-1")
+            bucket = s3.Bucket(bucket_name)
+            files = get_s3_files(bucket, docket_id)
+            sorted_files = sort_files(files)
 
-    bucket = s3.Bucket(bucket_name)
-    files = get_s3_files(bucket, docket_id)
-    sorted_files = sort_files(files)
+            load_dotenv()
+            dbname = os.getenv("POSTGRES_DB")
+            username = os.getenv("POSTGRES_USER")
+            password = os.getenv("POSTGRES_PASSWORD")
+            host = os.getenv("POSTGRES_HOST")
+            port = os.getenv("POSTGRES_PORT")
 
-    load_dotenv()
-    dbname = os.getenv("POSTGRES_DB")
-    username = os.getenv("POSTGRES_USER")
-    password = os.getenv("POSTGRES_PASSWORD")
-    host = os.getenv("POSTGRES_HOST")
-    port = os.getenv("POSTGRES_PORT")
-
-    conn_params = {
-        "dbname": dbname,
-        "user": username,
-        "password": password,
-        "host": host,
-        "port": port,
-    }
-    with psycopg.connect(**conn_params) as conn:
-        categorize_and_process_files(bucket, conn, sorted_files)
+            conn_params = {
+                "dbname": dbname,
+                "user": username,
+                "password": password,
+                "host": host,
+                "port": port,
+            }
+            with psycopg.connect(**conn_params) as conn:
+                categorize_and_process_files(bucket, conn, sorted_files)
 
 
 if __name__ == "__main__":
