@@ -35,12 +35,23 @@ dockets = response["aggregations"]["docketId_stats"]["buckets"]
 index_stats = client.count(index=index_name)
 total_documents = index_stats["count"]
 
-# Print the report
-print("Report: Matches and Total Comments Per Docket")
+# Create a list of dockets in json format that contains the docketId, docketTitle, the number of total comments, and the number of matching comments out of total comments
+dockets = [
+    {
+        "docketID": docket["key"],
+        "doc_count": docket["doc_count"],
+        "matching_comments": docket["matching_comments"]["doc_count"]
+    }
+    
+    for docket in dockets
+    ]
+
+# Print the list of dockets
+print("Dockets:")
 for docket in dockets:
-    docket_id = docket["key"]
-    total_comments = docket["doc_count"]
-    matching_comments = docket["matching_comments"]["doc_count"]
-    print(f"docketId: {docket_id}, Matches: {matching_comments}, Total Comments: {total_comments}")
+    if docket['matching_comments']['doc_count'] > 0:
+        print(f"\nDocket ID: {docket['docketID']}")
+        print(f"Total comments: {docket['doc_count']}")
+        print(f"Matching comments: {docket['matching_comments']}/{docket['doc_count']}")
 
 print(f"\nTotal number of documents in the index: {total_documents}")
