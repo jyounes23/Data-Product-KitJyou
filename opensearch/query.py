@@ -1,8 +1,17 @@
 from create_client import create_client
+import sys
 
 client = create_client()
 
 index_name = "comments"
+
+# Get the search term from the command line
+if len(sys.argv) < 2:
+    print("Please provide a search term")
+    sys.exit(1)
+
+search_term = sys.argv[1]
+print(f"Searching for: {search_term}")
 
 query = {
     "size": 0,  # No need to fetch individual documents
@@ -16,7 +25,7 @@ query = {
                 "matching_comments": {
                     "filter": {
                         "match": {
-                            "commentText": "drug"
+                            "commentText": search_term
                         }
                     }
                 }
