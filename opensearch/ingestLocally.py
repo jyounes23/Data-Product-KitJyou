@@ -41,29 +41,34 @@ def ingest_n_local_comments(client, directory, n_comments):
                 if file.endswith('.json') and '/comments/' in file_path.replace("\\", "/"):
                     file_paths.append(file_path)
 
-        # Ingest only up to 'n_comments' files
-        for i in range(min(n_comments, len(file_paths))):
+        # Determine the number of files to ingest
+        total_to_ingest = len(file_paths) if n_comments == -1 else min(n_comments, len(file_paths))
+
+        # Ingest the files
+        for i in range(total_to_ingest):
             ingest_local_comment(client, file_paths[i])
 
-       # print(f"Ingested {min(n_comments, len(file_paths))} comments from local directory.")
+        # print(f"Ingested {total_to_ingest} comments from local directory.")
 
     except Exception as e:
         print(f"Error processing local directory {directory}: {e}")
-
 
 if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description='Ingest local comments into Elasticsearch.')
-    parser.add_argument('n_comments', type=int, help='Number of comments to ingest')
+    parser.add_argument('n_comments', type=int, help='Number of comments to ingest', default=-1)
+    parser.add_argument('time', type=float, help='Time taken to ingest', default=False)
+    parser.add_argument('local_directory', type=str, help='Local directory containing JSON files", default="docket-samples')
     args = parser.parse_args()
 
     client = create_client()
-    local_directory = "docket-samples"  # Change this to your actual directory
+    local_directory = args.local_directory
 
     if not os.path.exists(local_directory):
         print(f"Error: Local directory '{local_directory}' does not exist.")
     else:
+
         import time
         start = time.time()
         ingest_n_local_comments(client, local_directory, args.n_comments)
