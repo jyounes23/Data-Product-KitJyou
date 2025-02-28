@@ -58,7 +58,7 @@ dockets = [
 # Print the list of dockets
 print("Dockets:")
 for docket in dockets:
-    if docket['matching_comments']['doc_count'] > 0:
+    if docket['matching_comments'] > 0:
         print(f"\nDocket ID: {docket['docketID']}")
         print(f"Total comments: {docket['doc_count']}")
         print(f"Matching comments: {docket['matching_comments']}/{docket['doc_count']}")
