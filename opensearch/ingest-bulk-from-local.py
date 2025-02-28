@@ -1,3 +1,4 @@
+import argparse
 import os
 import json
 import boto3
@@ -60,11 +61,19 @@ if __name__ == '__main__':
 
     # specify the directory name where the JSON files are stored
     directory_name = "docket-samples"
-    # specify the total number of documents to ingest
+    # specify the total number of comments to ingest
     # use -1 to ingest all documents in the directory
-    total_to_ingest = -1
+    parser = argparse.ArgumentParser(description='Ingest local comments into Elasticsearch.')
+    parser.add_argument('n_comments', type=int, help='Number of comments to ingest')
+    args = parser.parse_args()
+    
+    total_to_ingest = args.n_comments
     # specify the number of documents to ingest per bulk request
     # NOTE: this can likely be optimized, but for now we will use 1000
     ingest_per_bulk = 1000
-
+    import time 
+    start = time.time()
     bulk_ingest_all(client, directory_name, index_name, ingest_per_bulk, total_to_ingest)
+    end = time.time()
+
+    print(f"Total time taken: {end - start} seconds")
