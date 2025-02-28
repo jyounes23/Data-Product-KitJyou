@@ -85,7 +85,7 @@ def get_s3_files(bucket, docket_id: str):
 def main():
     # Get docket_id from command line arguments
     if len(sys.argv) < 2:
-        print("Usage: python IngestIndividualDocket.py <docket_id>")
+        print("Usage: python IngestDocket.py <docket_id>")
         sys.exit(1)
 
     docket_id = sys.argv[1]  # Get docket_id from command line
