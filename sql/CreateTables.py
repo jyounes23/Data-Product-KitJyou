@@ -117,7 +117,7 @@ def create_documents_table(conn: psycopg.Connection):
                     posted_date TIMESTAMP WITH TIME ZONE NOT NULL,
                     postmark_date TIMESTAMP WITH TIME ZONE,
                     reason_withdrawn VARCHAR(1000),
-                    receive_date TIMESTAMP WITH TIME ZONE NOT NULL,
+                    receive_date TIMESTAMP WITH TIME ZONE,
                     reg_writer_instruction TEXT,
                     restriction_reason VARCHAR(1000),
                     restriction_reason_type VARCHAR(20),
