@@ -88,9 +88,10 @@ python ingest.py
 
 2. To query the data, run the following command:
 ```bash
-python query.py
+python query.py <search term>
 ```
-**NOTE:** `query.py` is currently hard coded to search for the term "<ins>drug</ins>", but you can change this to any term you would like to search for.
+NOTE: Only dockets that have matching comments will appear as output
+
 
 ## Cleanup 
 
