@@ -2,4 +2,4 @@
 *.pyc
 .env
 __pycache__/
-*docket-samples*
+opensearch/docket-samples/
