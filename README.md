@@ -57,7 +57,7 @@ OPENSEARCH_HOST=localhost
 OPENSEARCH_PORT=9200
 S3_BUCKET_NAME=presentationbucketcs334s25
 ```
-**NOTE:** <ins>The S3 Bucket we are using for sample data is `docket-samples`</ins>. You can use your own bucket by changing the value of S3_BUCKET_NAME in the `.env` file.
+**NOTE:** <ins>The S3 Bucket we are using for sample data is `presentationbucketcs334s25`</ins>. You can use your own bucket by changing the value of S3_BUCKET_NAME in the `.env` file.
 
 Run `source .env` to load the environment variables into the current shell session in case of any credential issues.
 
