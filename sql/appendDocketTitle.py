@@ -1,9 +1,9 @@
-import psycopg2
+import psycopg
 import os
 from dotenv import load_dotenv
 import json
 import logging
-from queryFunct import dockets_list
+from opensearch.queryFunct import dockets_list
 
 # Error classes
 class DatabaseConnectionError(Exception):
@@ -21,7 +21,7 @@ def get_db_connection():
     load_dotenv()
 
     try:
-        conn = psycopg2.connect(
+        conn = psycopg.connect(
             dbname=os.getenv("POSTGRES_DB"),
             user=os.getenv("POSTGRES_USER"),
             password=os.getenv("POSTGRES_PASSWORD"),
@@ -54,18 +54,19 @@ def append_docket_titles(dockets_list, db_conn=None):
 
         # Query to fetch docket titles
         query = """
-        SELECT docketId, docketTitle 
+        SELECT docket_id, docket_title 
         FROM dockets 
-        WHERE docketId = ANY(%s)
+        WHERE docket_id = ANY(%s)
         """
 
+        # Execute the query with the provided docket IDs
         cursor.execute(query, (docket_ids,))
 
         # Fetch results and format them as JSON
         results = cursor.fetchall()
         docket_titles = {row[0]: row[1] for row in results}
 
-        # Append docket titles to the dockets list
+        # Append docket titles to the dockets list, using "Title Not Found" if no title is found
         for item in dockets_list:
             item["docketTitle"] = docket_titles.get(item["docketID"], "Title Not Found")
 
