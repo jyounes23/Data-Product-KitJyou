@@ -51,7 +51,7 @@ def append_docket_titles(dockets_list, db_conn=None):
 
         # Query to fetch docket titles
         query = """
-        SELECT docket_id, docket_title 
+        SELECT docket_id, docket_title, agency_id, modify_date
         FROM dockets 
         WHERE docket_id = ANY(%s)
         """
@@ -61,10 +61,14 @@ def append_docket_titles(dockets_list, db_conn=None):
         # Fetch results and format them as JSON
         results = cursor.fetchall()
         docket_titles = {row[0]: row[1] for row in results}
+        agency_ids = {row[0]: row[2] for row in results}
+        modify_dates = {row[0]: row[3].isoformat() for row in results}
 
         # Append docket titles to the dockets list
         for item in dockets_list:
             item["docketTitle"] = docket_titles.get(item["docketID"], "Title Not Found")
+            item["agencyID"] = agency_ids.get(item["docketID"], "Agency Not Found")
+            item["modifyDate"] = modify_dates.get(item["docketID"], "Date Not Found")
 
         dockets_list = [item for item in dockets_list if item["docketTitle"] != "Title Not Found"]
 
