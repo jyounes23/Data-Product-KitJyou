@@ -22,7 +22,7 @@ def create_client():
     if host is None or port is None:
         raise ValueError('Please set the environment variables OPENSEARCH_HOST and OPENSEARCH_PORT')
     
-    if host == 'localhost':
+    if host == 'opensearch-node1':
         auth = ('admin', os.getenv('OPENSEARCH_INITIAL_ADMIN_PASSWORD'))
 
         ca_certs_path = certifi.where()
@@ -31,11 +31,12 @@ def create_client():
             hosts = [{'host': host, 'port': port}],
             http_compress = True, # enables gzip compression for request bodies
             http_auth = auth,
-            use_ssl = True,
+            use_ssl = False,
             verify_certs = False,
-            ssl_assert_hostname = False,
+            # ssl_assert_hostname = False,
             ssl_show_warn = False,
-            ca_certs = ca_certs_path
+            # ca_certs = ca_certs_path
+            connection_class=RequestsHttpConnection
         )
 
         return client

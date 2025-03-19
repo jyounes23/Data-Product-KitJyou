@@ -53,7 +53,7 @@ cd opensearch
 
 ```bash
 OPENSEARCH_INITIAL_ADMIN_PASSWORD=C4nzUMkFu^e4N2
-OPENSEARCH_HOST=localhost
+OPENSEARCH_HOST=opensearch-node1
 OPENSEARCH_PORT=9200
 S3_BUCKET_NAME=presentationbucketcs334s25
 ```
@@ -74,7 +74,7 @@ docker compose ps
 
 
 ```bash
-curl https://localhost:9200 -ku admin:<your-admin-password>
+docker-compose exec opensearch-node1 curl -X GET "http://opensearch-node1:9200"  
 ```
 
 
@@ -82,13 +82,13 @@ curl https://localhost:9200 -ku admin:<your-admin-password>
 
 1. In the virtual environment, run the following command to create the index and ingest the data:
 ```bash
-python ingest.py
+docker-compose exec ingest python /app/ingest.py 
 ```
 **NOTE:** This may take a few minutes to complete. It will produce one line of output for each document ingested.
 
 2. To query the data, run the following command:
 ```bash
-python query.py <search term>
+docker-compose exec ingest python /app/query.py <search_term> 
 ```
 NOTE: Only dockets that have matching comments will appear as output
 
@@ -97,7 +97,7 @@ NOTE: Only dockets that have matching comments will appear as output
 
 1. To delete data from the OpenSearch instance, run the following command:
 ```bash
-python delete_index.py
+docker-compose exec ingest python /app/delete_index.py  
 ```
 2. To stop the OpenSearch container, run the following command:
 ```bash
@@ -120,7 +120,7 @@ cd sql
 POSTGRES_DB=postgres
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
-POSTGRES_HOST=localhost
+POSTGRES_HOST=db
 POSTGRES_PORT=5432
 ```
 **NOTE:** When running locally, you can set the username and password to any desired credentials. Example credentials are displayed above.
@@ -135,18 +135,18 @@ docker compose up -d
 
 * You can run the following command to create the table and insert data:
 ```bash
-python CreateTables.py
+docker-compose exec sql-client python CreateTables.py
 ```
 
 To ingest all the sample data from the S3 bucket, you can run the following command:
 ```bash
-python IngestFromBucket.py presentationbucketcs334s25
+docker-compose exec sql-client python IngestFromBucket.py presentationbucketcs334s25
 ```
 **NOTE:** This may take a few minutes to complete.
 
 * *Optional:* To ingest an individual docket with all its contents from the Mirrulations S3 bucket, you can run the following command:
 ```bash
-python IngestFromS3.py <docket_id>
+docker-compose exec sql-client python IngestFromS3.py <docket_id>
 ```
 **NOTE:** Example docket: *DOS-2022-0004*
 
@@ -161,7 +161,7 @@ Queries can be made through the database connection or by running the `Query.py`
 * You can connect to the database using the following command:
 
  ```bash
-psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB
+docker-compose exec sql-client psql -h db -U username -d postgres   
  ```
 
 You can begin querying once the connection has been established. 
@@ -181,7 +181,7 @@ or press `CTRL+D`
 2. <u>**Query.py script**</u>
     * This command allows the user to input a SQL query:
 ```bash
-python Query.py "SELECT docket_id FROM dockets;"
+docker-compose exec sql-client python /app/Query.py "SELECT docket_id FROM dockets;"
 ```
  An example query is provided above. 
 
@@ -191,7 +191,7 @@ python Query.py "SELECT docket_id FROM dockets;"
 
 **Note**: You can run the following command to drop the tables if you want to empty the database:
 ```bash
-python DropTables.py
+docker-compose exec sql-client python DropTables.py
 ```
 
 1. To stop the SQL container, run the following command:
