@@ -1,0 +1,194 @@
+# agency_id|agency_name
+ACL|Administration for Community Living
+ACF|Administration of Children and Families
+AOA|Administration on Aging
+AHRQ|Agency for Healthcare Research and Quality
+ATSDR|Agency for Toxic Substances and Disease Registry
+AMS|Agricultural Marketing Service
+ARS|Agricultural Research Service
+USAF|Air Force Department
+TTB|Alcohol and Tobacco Tax and Trade Bureau
+ATF|Alcohol, Tobacco, Firearms, and Explosives Bureau
+APHIS|Animal and Plant Health Inspection Service
+ATR|Antitrust Division
+ASC|Appraisal Subcommittee
+ATBCB|Architectural and Transportation Barriers Compliance Board
+USA|Army Department
+BPA|Bonneville Power Administration
+EAB|Bureau of Economic Analysis
+BIA|Bureau of Indian Affairs
+BIS|Bureau of Industry and Security
+BLS|Bureau of Labor Statistics
+BLM|Bureau of Land Management
+BOEM|Bureau of Ocean Energy Management
+BPD|Bureau of Public Debt
+BOR|Bureau of Reclamation
+BSEE|Bureau of Safety and Environmental Enforcement
+USBC|Bureau of the Census
+BSC|Business Standards Council
+CDC|Centers for Disease Control and Prevention
+CMS|Centers for Medicare&Medicaid Services
+CSB|Chemical Safety and Hazard Investigation Board
+CSEO|Child Support Enforcement Office
+USCG|Coast Guard
+CPPBSD|Committee for Purchase From People Who Are Blind Or Severely Disabled
+CCC|Commodity Credit Corporation
+CDFI|Community Development Financial Institutions Fund
+OCC|Comptroller of the Currency
+CFPB|Consumer Financial Protection Bureau
+CPSC|Consumer Product Safety Commission
+CSREES|Cooperative State Research, Education, and Extension Service
+CNCS|Corporation for National and Community Service
+COE|Corps of Engineers
+CEQ|Council on Environmental Quality
+USCBP|Customs and Border Protection Bureau
+CISA|Cybersecurity and Infrastructure Security Agency
+DARS|Defense Acquisition Regulations System
+USDA|Department of Agriculture
+DOC|Department of Commerce
+DOD|Department of Defense
+ED|Department of Education
+DOE|Department of Energy
+HHS|Department of Health and Human Services
+DHS|Department of Homeland Security
+HUD|Department of Housing and Urban Development
+DOJ|Department of Justice
+DOL|Department of Labor
+DOI|Department of the Interior
+TREAS|Department of the Treasury
+DOT|Department of Transportation
+VA|Department of Veterans Affairs
+DEPO|Disability Employment Policy Office
+DEA|Drug Enforcement Administration
+EDA|Economic Development Administration
+ERS|Economic Research Service
+ECSA|Economics and Statistics Administration
+EAC|Election Assistance Commission
+EBSA|Employee Benefits Security Administration
+ECAB|Employees' Compensation Appeals Board
+ETA|Employment and Training Administration
+ESA|Employment Standards Administration
+EERE|Energy Efficiency and Renewable Energy Office
+EIA|Energy Information Administration
+EOA|Energy Office, Agriculture Department
+EPA|Environmental Protection Agency
+EEOC|Equal Employment Opportunity Commission
+EOIR|Executive Office for Immigration Review
+EIB|Export Import Bank of the United States
+FPAC|Farm Production and Conservation Business Center
+FSA|Farm Service Agency
+FAR|Federal Acquisition Regulation
+FAA|Federal Aviation Administration
+FBI|Federal Bureau of Investigation
+FCIC|Federal Crop Insurance Corporation
+FEMA|Federal Emergency Management Agency
+FFIEC|Federal Financial Institutions Examination Council
+FHWA|Federal Highway Administration
+FLETC|Federal Law Enforcement Training Center
+FMC|Federal Maritime Commission
+FMCSA|Federal Motor Carrier Safety Administration
+BOP|Federal Prisons Bureau
+FRA|Federal Railroad Administration
+FRTIB|Federal Retirement Thrift Investment Board
+FTC|Federal Trade Commission
+FTA|Federal Transit Administration
+FINCEN|Financial Crimes Enforcement Network
+FSOC|Financial Stability Oversight Council
+FIRSTNET|First Responder Network Authority
+FISCAL|Fiscal Service
+FWS|Fish and Wildlife Service
+FDA|Food and Drug Administration
+FNS|Food and Nutrition Service
+FSIS|Food Safety and Inspection Service
+FAS|Foreign Agricultural Service
+FCSC|Foreign Claims Settlement Commission
+FTZB|Foreign-trade Zones Board
+FS|Forest Service
+GSA|General Services Administration
+GIPSA|Grain Inspection, Packers and Stockyards Administration
+GAPFAC|Gsa Acquisition Policy Federal Advisory Committee
+HRSA|Health Resources and Services Administration
+ICEB|Immigration and Customs Enforcement Bureau
+IACB|Indian Arts and Crafts Board
+IHS|Indian Health Service
+ISOO|Information Security Oversight Office
+USDAIG|Inspector General Office, Agriculture Department
+HHSIG|Inspector General Office, Health and Human Services Department
+IRS|Internal Revenue Service
+ITA|International Trade Administration
+OJP|Justice Programs Office
+OJJDP|Juvenile Justice and Delinquency Prevention Office
+LMSO|Labor-management Standards Office
+MARAD|Maritime Administration
+MSHA|Mine Safety and Health Administration
+MMS|Minerals Management Service
+MBDA|Minority Business Development Agency
+NASA|National Aeronautics and Space Administration
+NAL|National Agricultural Library
+NASS|National Agricultural Statistics Service
+NARA|National Archives and Records Administration
+NCS|National Communications System
+NCUA|National Credit Union Administration
+NHTSA|National Highway Traffic Safety Administration
+NIGC|National Indian Gaming Commission
+NIC|National Institute of Corrections
+NIFA|National Institute of Food and Agriculture
+NIST|National Institute of Standards and Technology
+NIH|National Institutes of Health
+NLRB|National Labor Relations Board
+NNSA|National Nuclear Security Administration
+NOAA|National Oceanic and Atmospheric Administration
+NPS|National Park Service
+NSF|National Science Foundation
+NSPC|National Space Council
+NTIA|National Telecommunications and Information Administration
+NTSB|National Transportation Safety Board
+NRCS|Natural Resources Conservation Service
+USN|Navy Department
+NEO|Nuclear Energy Office
+NRC|Nuclear Regulatory Commission
+OSHA|Occupational Safety and Health Administration
+OEPNU|Office of Energy Policy and New Uses
+OFCCP|Office of Federal Contract Compliance Programs
+OFPP|Office of Federal Procurement Policy
+OFAC|Office of Foreign Assets Control
+OMB|Office of Management and Budget
+ONDCP|Office of National Drug Control Policy
+ONRR|Office of Natural Resources Revenue
+OPM|Office of Personnel Management
+OPPM|Office of Procurement and Property Management
+OSTP|Office of Science and Technology Policy
+OSM|Office of Surface Mining Reclamation and Enforcement
+OFR|Office of the Federal Register
+IPEC|Office of the Intellectual Property Enforcement Coordinator
+ONCD|Office of the National Cyber Director
+PTO|Patent and Trademark Office
+PBGC|Pension Benefit Guaranty Corporation
+PHMSA|Pipeline and Hazardous Materials Safety Administration
+PCLOB|Privacy and Civil Liberties Oversight Board
+RITA|Research and Innovative Technology Administration
+RMA|Risk Management Agency
+RBS|Rural Business-Cooperative Service
+RHS|Rural Housing Service
+RTB|Rural Telephone Bank
+RUS|Rural Utilities Service
+SLSDC|Saint Lawrence Seaway Development Corporation
+SSS|Selective Service System
+SBA|Small Business Administration
+SSA|Social Security Administration
+SEPA|Southeastern Power Administration
+SWPA|Southwestern Power Administration
+SAMHSA|Substance Abuse and Mental Health Services Administration
+TA|Technology Administration
+TSA|Transportation Security Administration
+USGS|U. S. Geological Survey
+AID|U.S. Agency for International Development
+USCIS|U.S. Citizenship and Immigration Services
+COLC|U.S. Copyright Office
+DOS|U.S. Department of State
+USC|United States Courts
+USMINT|United States Mint
+VETS|Veterans Employment and Training Service
+WHD|Wage and Hour Division
+WAPA|Western Area Power Administration
+WCPO|Workers Compensation Programs Office
