@@ -159,8 +159,8 @@ def query(search_params):
     sortParams = query_params["sortParams"]
     filterParams = query_params["filterParams"]
 
-    perPage = 3
-    pages = 2
+    perPage = 10
+    pages = 10
     totalResults = perPage * pages
 
     if refreshResults:
@@ -198,8 +198,8 @@ def query(search_params):
 if __name__ == '__main__':
     query_params = {
         "searchTerm": "gun",
-        "pageNumber": 1,
-        "refreshResults": False,
+        "pageNumber": 0,
+        "refreshResults": True,
         "sessionID": "session1",
         "sortParams": {
             "sortType": "dateModified",
@@ -220,32 +220,3 @@ if __name__ == '__main__':
 
     print(query(json.dumps(query_params)))
 
-
-# Query the OpenSearch API and append docket supplementary information
-# def query(search_params): 
-#     os_results = query_OpenSearch(search_params.get('searchTerm'))
-
-#     print(os_results)
-
-#     combined_results = append_docket_titles(os_results, connect())
-
-#     sorted_results = sort_aoss_results(combined_results, search_params.get('sortParams').get('sortType'))
-#     try:
-#         sorted_results = json.loads(sorted_results)
-#     except Exception:
-#         sorted_results = []
-    
-#     filtered_list = filter_dockets(sorted_results, search_params.get('filter_params'))
-    
-#     return json.dumps(filtered_list, ensure_ascii=False)
-
-
-# if __name__ == '__main__':
-#     if len(sys.argv) < 2:
-#         print("Usage: python query.py <search_term> [<filter_params_json>]")
-#         sys.exit(1)
-    
-#     search_term = sys.argv[1]
-#     print(f"search_term: {search_term}")
-#     print(query(search_params))
-# >>>>>>> 796356b7bdcc7b63ea8660e7fa1390b55bbc65b2
