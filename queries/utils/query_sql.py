@@ -85,4 +85,4 @@ def append_docket_titles(dockets_list, db_conn=None):
         logging.info("Database connection closed.")
 
     # Return the updated list, ensuring it is in JSON format
-    return json.dumps(dockets_list, indent=None, ensure_ascii=False)
+    return dockets_list

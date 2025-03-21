@@ -165,7 +165,7 @@ def query(search_params):
 
     if refreshResults:
         os_results = query_OpenSearch(searchTerm)
-        results = json.loads(append_docket_titles(os_results, connect()))
+        results = append_docket_titles(os_results, connect())
 
         for docket in results:
             # temporary relevance score
@@ -193,7 +193,7 @@ def query(search_params):
         dockets = sorted(dockets, key=lambda x: x["relevance_score"])
         dockets = dockets[perPage * pageNumber:perPage * (pageNumber + 1)]
         dockets = append_docket_titles(dockets, connect())
-        return dockets
+        return json.dumps(dockets)
 
 if __name__ == '__main__':
     query_params = {
