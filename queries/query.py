@@ -92,16 +92,6 @@ def query(search_params):
 
     combined_results = append_docket_titles(os_results, connect())
 
-    return sort_aoss_results(combined_results, search_params.get('sortParams').get('sortType'))
-
-# Query the OpenSearch API and append docket supplementary information
-def query(search_params): 
-    os_results = query_OpenSearch(search_params.get('searchTerm'))
-
-    print(os_results)
-
-    combined_results = append_docket_titles(os_results, connect())
-
     sorted_results = sort_aoss_results(combined_results, search_params.get('sortParams').get('sortType'))
     try:
         sorted_results = json.loads(sorted_results)
