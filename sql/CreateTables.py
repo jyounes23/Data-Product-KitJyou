@@ -152,16 +152,13 @@ def create_agencies_table(conn: psycopg.Connection):
     """
     _create_table(conn, query, "agencies")
 
-#def insert_agencies_data(conn: psycopg.Connection):
-#    query = """
-#                INSERT INTO agencies (agency_id, agency_name)
-#                VALUES
-#                    ('EPA', 'Environmental Protection Agency'),
-#                    ('FDA', 'Food and Drug Administration
-#            """
-#    _insert_into_table(conn, query, "agencies")
 
 def insert_agencies_data(conn: psycopg.Connection, file_path: str):
+    '''
+    Insert data into the agencies table from a text file called 'agencies.txt'
+    The first line outlines the format of the data in the file:
+    agency_id|agency_name
+    '''
     try:
         with open(file_path, 'r') as file:
             # Skip the header line
@@ -175,7 +172,7 @@ def insert_agencies_data(conn: psycopg.Connection, file_path: str):
                 agency_name = agency_name.replace("'", "''")
                 values.append(f"('{agency_id}', '{agency_name}')")
 
-            # Construct the INSERT query
+            # Create the INSERT query
             query = f"""
             INSERT INTO agencies (agency_id, agency_name)
             VALUES {', '.join(values)};
@@ -186,44 +183,6 @@ def insert_agencies_data(conn: psycopg.Connection, file_path: str):
     except Exception as e:
         print(f"An error occurred while inserting data: {e}")
 
-# def insert_agencies_data(conn: psycopg.Connection, file_path: str):
-#     try:
-#         with open(file_path, 'r') as file:
-#             # Skip the header line
-#             next(file)
-
-#             # Read and parse the file
-#             values = []
-#             for line in file:
-#                 # Strip whitespace and skip blank or malformed lines
-#                 line = line.strip()
-#                 if not line or '|' not in line:
-#                     continue
-
-#                 # Split the line into agency_id and agency_name
-#                 parts = line.split('|')
-#                 if len(parts) != 2:
-#                     print(f"Skipping malformed line: {line}")
-#                     continue
-
-#                 agency_id, agency_name = parts
-
-#                 # Escape single quotes in agency_name
-#                 agency_name = agency_name.replace("'", "''")
-#                 values.append(f"('{agency_id}', '{agency_name}')")
-
-#             # Construct the INSERT query
-#             if values:  # Only execute if there are valid values
-#                 query = f"""
-#                 INSERT INTO agencies (agency_id, agency_name)
-#                 VALUES {', '.join(values)};
-#                 """
-#                 # Execute the query
-#                 _insert_into_table(conn, query, "agencies")
-#             else:
-#                 print("No valid data to insert into the agencies table.")
-#     except Exception as e:
-#         print(f"An error occurred while inserting data: {e}")
 
 def main():
     load_dotenv()
