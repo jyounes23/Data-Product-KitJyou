@@ -29,12 +29,14 @@ def  bulk_ingest_all(client, directory_name, index_name, ingest_per_bulk, total_
     for dirpath, dirnames, filenames in os.walk(directory_name):
         for filename in filenames:
             if dirpath.endswith("comments") and filename.endswith(".json"):
+                document = get_data_from_file(os.path.join(dirpath, filename))
+                comment_id = document['commentId']
+            
                 # the action line is used to specify the index name
-                action = f'{{"index": {{"_index": "{index_name}"}}}}\n'
+                action = f'{{"index": {{"_index": "{index_name}", "_id": "{comment_id}"}}}}\n'
                 ingest_string += action
 
                 # we get the document from the file and add it to the ingest_string
-                document = get_data_from_file(os.path.join(dirpath, filename))
                 ingest_string += json.dumps(document) + '\n'
 
                 # increase both counts by 1
@@ -59,7 +61,7 @@ def  bulk_ingest_all(client, directory_name, index_name, ingest_per_bulk, total_
 if __name__ == '__main__':
     client = create_client()
 
-    index_name = 'comments_bulk_test'
+    index_name = 'comments'
 
     # specify the directory name where the JSON files are stored
     
