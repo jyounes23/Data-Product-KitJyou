@@ -1,15 +1,93 @@
+import sys
+import json
+from dateutil import parser as date_parser
+from datetime import datetime
 from utils.query_opensearch import query_OpenSearch
 from utils.query_sql import append_docket_titles
 from utils.sql import connect
 
-import json
-import sys
+def filter_dockets(dockets, filter_params=None):
+    if filter_params is None:
+        return dockets
 
-def filter_dockets(dockets, filterParams):
-    return dockets
+    agencies = filter_params.get("agencies", [])
+    date_range = filter_params.get("dateRange", {})
+    docket_type = filter_params.get("docketType", "")
+    
+    start_date = date_parser.isoparse(date_range.get("start", "1970-01-01T00:00:00Z"))
+    end_date = date_parser.isoparse(date_range.get("end", datetime.now().isoformat() + "Z"))
+    
+    filtered = []
+    for docket in dockets:
+        if agencies and docket.get("agencyID", "") not in agencies:
+            continue
+        
+        if docket_type and docket.get("docketType", "") != docket_type:
+            continue
 
-def sort_aoss_results(dockets, sort_type, desc=True):
-    return dockets
+        try:
+            mod_date = date_parser.isoparse(docket.get("modifyDate", "1970-01-01T00:00:00Z"))
+        except Exception:
+            mod_date = datetime.datetime(1970, 1, 1)
+        if mod_date < start_date or mod_date > end_date:
+            continue
+        
+        filtered.append(docket)
+    
+    return filtered
+
+# Sort the combined results based on the given sort_type
+def sort_aoss_results(results, sort_type, desc=True):
+    """
+    Sort a list of JSON objects based on the given sort_type.
+    
+    Parameters:
+        results (str or list): JSON string or list of dictionaries to be sorted.
+        sort_type (str): Sorting criteria ('dateModified', 'alphaByTitle', 'relevance').
+        desc (bool): Sort order, descending if True (default).
+    
+    Returns:
+        str: JSON string of sorted results.
+    """
+
+    # If results is a JSON string, try to parse it
+    if isinstance(results, str):
+        try:
+            results = json.loads(results)
+        except json.JSONDecodeError:
+            raise ValueError("Invalid JSON input")
+
+    # Ensure results is a list
+    if not isinstance(results, list):
+        raise TypeError(f"Expected a list, but got {type(results)}")
+
+    # Validate sort_type
+    valid_sort_types = {'dateModified', 'alphaByTitle', 'relevance'}
+
+    if sort_type not in valid_sort_types:
+        print("Invalid sort type. Defaulting to 'dateModified'")
+        sort_type = 'dateModified'
+
+
+    # Sort based on the sort_type
+    if sort_type == 'dateModified':
+
+        results.sort(
+            key=lambda x: datetime.fromisoformat(
+                x.get('modifyDate', '1970-01-01T00:00:00Z') 
+            ), reverse=desc)
+        
+    elif sort_type == 'alphaByTitle':
+        results.sort(key=lambda x: x.get('title', ''), reverse=not desc)
+
+    elif sort_type == 'relevance':
+        results.sort(key=lambda x: x.get('relevance_score', 0), reverse=desc)
+
+    for i, docket in enumerate(results):
+        docket["search_rank"] = i
+
+    # Return sorted results as a JSON string
+    return results
 
 def storeDockets(dockets, searchTerm, sessionID, sortParams, filterParams, totalResults):
 
@@ -20,7 +98,7 @@ def storeDockets(dockets, searchTerm, sessionID, sortParams, filterParams, total
             searchTerm,
             sessionID,
             sortParams["desc"],
-            sortParams["sortField"],
+            sortParams["sortType"],
             ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '',
             filterParams["dateRange"]["startDate"],
             filterParams["dateRange"]["endDate"],
@@ -31,8 +109,6 @@ def storeDockets(dockets, searchTerm, sessionID, sortParams, filterParams, total
             dockets[i]["matching_comments"],
             dockets[i]["relevance_score"]
         )
-
-        print(values)
 
         # Insert into the database
         try:
@@ -62,7 +138,7 @@ def getSavedResults(searchTerm, sessionID, sortParams, filterParams):
             WHERE search_term = %s AND session_id = %s AND sort_asc = %s AND sort_type = %s AND filter_agencies = %s
             AND filter_date_start = %s AND filter_date_end = %s AND filter_rulemaking = %s
             """
-            cursor.execute(select_query, (searchTerm, sessionID, sortParams["desc"], sortParams["sortField"],
+            cursor.execute(select_query, (searchTerm, sessionID, sortParams["desc"], sortParams["sortType"],
                                           ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '', filterParams["dateRange"]["startDate"],
                                           filterParams["dateRange"]["endDate"], filterParams["docketType"]))
             dockets = cursor.fetchall()
@@ -71,7 +147,6 @@ def getSavedResults(searchTerm, sessionID, sortParams, filterParams):
         print(e)
 
     return dockets
-
 
 def query(search_params):
 
@@ -84,22 +159,25 @@ def query(search_params):
     sortParams = query_params["sortParams"]
     filterParams = query_params["filterParams"]
 
-    perPage = 10
-    pages = 10
+    perPage = 3
+    pages = 2
     totalResults = perPage * pages
 
     if refreshResults:
         os_results = query_OpenSearch(searchTerm)
-        dockets = json.loads(append_docket_titles(os_results, connect()))
-        for d in dockets:
+        results = json.loads(append_docket_titles(os_results, connect()))
+
+        for docket in results:
             # temporary relevance score
-            d["relevance_score"] = 1
-        dockets = filter_dockets(dockets, filterParams)
-        dockets = sort_aoss_results(dockets, sortParams)
+            docket["relevance_score"] = 1
 
-        storeDockets(dockets, searchTerm, sessionID, sortParams, filterParams, totalResults)
+        filtered_results = filter_dockets(results, search_params.get('filterParams'))
+    
+        sorted_results = sort_aoss_results(filtered_results, search_params.get('sortParams').get('sortType'))
 
-        return json.dumps(dockets[perPage * pageNumber:perPage * (pageNumber + 1)])
+        storeDockets(sorted_results, searchTerm, sessionID, sortParams, filterParams, totalResults)
+
+        return json.dumps(sorted_results[perPage * pageNumber:perPage * (pageNumber + 1)])
 
     else:
         dockets_raw = getSavedResults(searchTerm, sessionID, sortParams, filterParams)
@@ -124,7 +202,7 @@ if __name__ == '__main__':
         "refreshResults": False,
         "sessionID": "session1",
         "sortParams": {
-            "sortField": "dateModified",
+            "sortType": "dateModified",
             "desc": True,
         },
         "filterParams": {
@@ -141,3 +219,33 @@ if __name__ == '__main__':
     print(f"searchTerm: {searchTerm}")
 
     print(query(json.dumps(query_params)))
+
+
+# Query the OpenSearch API and append docket supplementary information
+# def query(search_params): 
+#     os_results = query_OpenSearch(search_params.get('searchTerm'))
+
+#     print(os_results)
+
+#     combined_results = append_docket_titles(os_results, connect())
+
+#     sorted_results = sort_aoss_results(combined_results, search_params.get('sortParams').get('sortType'))
+#     try:
+#         sorted_results = json.loads(sorted_results)
+#     except Exception:
+#         sorted_results = []
+    
+#     filtered_list = filter_dockets(sorted_results, search_params.get('filter_params'))
+    
+#     return json.dumps(filtered_list, ensure_ascii=False)
+
+
+# if __name__ == '__main__':
+#     if len(sys.argv) < 2:
+#         print("Usage: python query.py <search_term> [<filter_params_json>]")
+#         sys.exit(1)
+    
+#     search_term = sys.argv[1]
+#     print(f"search_term: {search_term}")
+#     print(query(search_params))
+# >>>>>>> 796356b7bdcc7b63ea8660e7fa1390b55bbc65b2

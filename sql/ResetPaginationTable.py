@@ -1,5 +1,5 @@
 from DropTables import drop_stored_results_table
-from CreateTables import create_stored_results_table,
+from CreateTables import create_stored_results_table
 from dotenv import load_dotenv
 import psycopg
 import sys
