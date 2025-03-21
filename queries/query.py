@@ -15,7 +15,7 @@ def storeDockets(dockets, searchTerm, sessionID, sortParams, filterParams, total
 
     conn = connect()
 
-    for i in range(totalResults):
+    for i in range(min(totalResults, len(dockets))):
         values = (
             searchTerm,
             sessionID,
