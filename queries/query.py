@@ -52,11 +52,11 @@ def sort_aoss_results(results, sort_type, desc=True):
     return json.dumps(results)
 
 
-def query(search_term): 
+def query(search_term, sort_type): 
     os_results = query_OpenSearch(search_term)
     print(os_results)
     combined_results = append_docket_titles(os_results, connect())
-    return sort_aoss_results(combined_results, 'dateModified')
+    return sort_aoss_results(combined_results, sort_type)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -65,4 +65,4 @@ if __name__ == '__main__':
 
     search_term = sys.argv[1]
     print(f"search_term: {search_term}")
-    print(query(search_term))
+    print(query(search_term, 'dateModified'))
