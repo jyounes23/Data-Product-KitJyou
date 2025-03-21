@@ -161,13 +161,16 @@ def insert_agencies_data(conn: psycopg.Connection, file_path: str):
     '''
     try:
         with open(file_path, 'r') as file:
-            # Skip the header line
-            next(file)
-
             # Read and parse the file
             values = []
             for line in file:
+                # Skip lines starting with '#'
+                if line.startswith('#'):
+                    continue
+
+                # Split the line into agency_id and agency_name
                 agency_id, agency_name = line.strip().split('|')
+                
                 # Escape single quotes in agency_name
                 agency_name = agency_name.replace("'", "''")
                 values.append(f"('{agency_id}', '{agency_name}')")
