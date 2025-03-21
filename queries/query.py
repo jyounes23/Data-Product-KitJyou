@@ -58,7 +58,6 @@ if __name__ == '__main__':
     filter_params = None
 
     if len(sys.argv) >= 3:
-        import json
         try:
             filter_params = json.loads(sys.argv[2])
         except Exception as e:
