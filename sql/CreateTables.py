@@ -131,6 +131,30 @@ def create_documents_table(conn: psycopg.Connection):
             """
     _create_table(conn, query, "documents")
 
+def create_stored_results_table(conn: psycopg.Connection):
+    query = """
+                CREATE TABLE stored_results (
+                    id SERIAL PRIMARY KEY,
+                    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), -- when the search is initially made, so we can periodically delete old searches
+                    -- info about the search: if all of these match, we return corresponding dockets
+                    search_term TEXT NOT NULL,
+                    session_id VARCHAR(255) NOT NULL,
+                    sort_asc BOOLEAN NOT NULL,
+                    sort_type VARCHAR(20) NOT NULL,
+                    filter_agencies TEXT NOT NULL, -- comma separated, alphabetical order, empty string for no filter
+                    filter_date_start TIMESTAMP WITH TIME ZONE NOT NULL,
+                    filter_date_end TIMESTAMP WITH TIME ZONE NOT NULL,
+                    filter_rulemaking VARCHAR(15) NOT NULL, -- empty string for no filter
+                    -- info about the docket
+                    search_rank INT NOT NULL,
+                    docket_id VARCHAR(50) NOT NULL,
+                    total_comments INT NOT NULL,
+                    matching_comments INT NOT NULL,
+                    relevance_score FLOAT NOT NULL
+                );
+            """
+    _create_table(conn, query, "stored_results")
+
 
 def main():
     load_dotenv()
@@ -155,6 +179,7 @@ def main():
     create_dockets_table(conn)
     create_documents_table(conn)
     create_comments_table(conn)
+    create_stored_results_table(conn)
 
     conn.close()
 

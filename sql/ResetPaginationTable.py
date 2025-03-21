@@ -1,10 +1,5 @@
-from DropTables import drop_comments_table, drop_dockets_table, drop_documents_table, drop_stored_results_table
-from CreateTables import (
-    create_comments_table,
-    create_dockets_table,
-    create_documents_table,
-    create_stored_results_table,
-)
+from DropTables import drop_stored_results_table
+from CreateTables import create_stored_results_table,
 from dotenv import load_dotenv
 import psycopg
 import sys
@@ -33,16 +28,10 @@ def main():
         print(e)
         sys.exit(1)
 
-    print("Dropping tables")
-    drop_comments_table(conn)
-    drop_documents_table(conn)
-    drop_dockets_table(conn)
+    print("Dropping table")
     drop_stored_results_table(conn)
 
-    print("\nRecreating tables...")
-    create_dockets_table(conn)
-    create_documents_table(conn)
-    create_comments_table(conn)
+    print("\nRecreating table...")
     create_stored_results_table(conn)
 
 
