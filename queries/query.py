@@ -44,7 +44,7 @@ def sort_aoss_results(results, sort_type, desc=True):
 
         results.sort(
             key=lambda x: datetime.fromisoformat(
-                x.get('dateModified', '1900-01-01T00:00:00Z').replace('Z', '+00:00') 
+                x.get('dateModified', '1900-01-01T00:00:00Z') 
             ), reverse=desc)
         
     elif sort_type == 'alphaByTitle':
