@@ -161,7 +161,7 @@ Queries can be made through the database connection or by running the `Query.py`
 * You can connect to the database using the following command:
 
  ```bash
-docker-compose exec sql-client psql -h db -U username -d postgres   
+docker-compose exec sql-client psql -h db -U postgres -d postgres   
  ```
 
 You can begin querying once the connection has been established. 

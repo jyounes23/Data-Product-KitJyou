@@ -14,6 +14,17 @@ def _create_table(conn: psycopg.Connection, query: str, table_name: str):
         print(f"An error occurred: {e}")
 
 
+def _insert_into_table(conn: psycopg.Connection, query: str, table_name: str):
+    try:
+        with conn.cursor() as cur:
+            cur.execute(query)
+            conn.commit()
+            print(f"Inserted data into '{table_name}' successfully")
+    except psycopg.Error as e:
+        print(f"An error occurred: {e}")
+        sys.exit(1)
+
+
 def create_comments_table(conn: psycopg.Connection):
     query = """
                 CREATE TABLE comments (
@@ -132,6 +143,88 @@ def create_documents_table(conn: psycopg.Connection):
     _create_table(conn, query, "documents")
 
 
+def create_agencies_table(conn: psycopg.Connection):
+    query = """
+    CREATE TABLE agencies (
+        agency_id VARCHAR(20) NOT NULL PRIMARY KEY,
+        agency_name VARCHAR(200) NOT NULL
+    );
+    """
+    _create_table(conn, query, "agencies")
+
+#def insert_agencies_data(conn: psycopg.Connection):
+#    query = """
+#                INSERT INTO agencies (agency_id, agency_name)
+#                VALUES
+#                    ('EPA', 'Environmental Protection Agency'),
+#                    ('FDA', 'Food and Drug Administration
+#            """
+#    _insert_into_table(conn, query, "agencies")
+
+def insert_agencies_data(conn: psycopg.Connection, file_path: str):
+    try:
+        with open(file_path, 'r') as file:
+            # Skip the header line
+            next(file)
+
+            # Read and parse the file
+            values = []
+            for line in file:
+                agency_id, agency_name = line.strip().split('|')
+                # Escape single quotes in agency_name
+                agency_name = agency_name.replace("'", "''")
+                values.append(f"('{agency_id}', '{agency_name}')")
+
+            # Construct the INSERT query
+            query = f"""
+            INSERT INTO agencies (agency_id, agency_name)
+            VALUES {', '.join(values)};
+            """
+
+            # Execute the query
+            _insert_into_table(conn, query, "agencies")
+    except Exception as e:
+        print(f"An error occurred while inserting data: {e}")
+
+# def insert_agencies_data(conn: psycopg.Connection, file_path: str):
+#     try:
+#         with open(file_path, 'r') as file:
+#             # Skip the header line
+#             next(file)
+
+#             # Read and parse the file
+#             values = []
+#             for line in file:
+#                 # Strip whitespace and skip blank or malformed lines
+#                 line = line.strip()
+#                 if not line or '|' not in line:
+#                     continue
+
+#                 # Split the line into agency_id and agency_name
+#                 parts = line.split('|')
+#                 if len(parts) != 2:
+#                     print(f"Skipping malformed line: {line}")
+#                     continue
+
+#                 agency_id, agency_name = parts
+
+#                 # Escape single quotes in agency_name
+#                 agency_name = agency_name.replace("'", "''")
+#                 values.append(f"('{agency_id}', '{agency_name}')")
+
+#             # Construct the INSERT query
+#             if values:  # Only execute if there are valid values
+#                 query = f"""
+#                 INSERT INTO agencies (agency_id, agency_name)
+#                 VALUES {', '.join(values)};
+#                 """
+#                 # Execute the query
+#                 _insert_into_table(conn, query, "agencies")
+#             else:
+#                 print("No valid data to insert into the agencies table.")
+#     except Exception as e:
+#         print(f"An error occurred while inserting data: {e}")
+
 def main():
     load_dotenv()
 
@@ -155,6 +248,10 @@ def main():
     create_dockets_table(conn)
     create_documents_table(conn)
     create_comments_table(conn)
+    create_agencies_table(conn)
+
+    # Insert data into the agencies table
+    insert_agencies_data(conn, "agencies.txt")
 
     conn.close()
 
