@@ -1,10 +1,40 @@
+import sys
+import json
+from dateutil import parser as date_parser
 from datetime import datetime
 from utils.query_opensearch import query_OpenSearch
 from utils.query_sql import append_docket_titles
 from utils.sql import connect
-import json
-import sys
 
+def filter_dockets(dockets, filter_params=None):
+    if filter_params is None:
+        return dockets
+
+    agencies = filter_params.get("agencies", [])
+    date_range = filter_params.get("dateRange", {})
+    docket_type = filter_params.get("docketType", "")
+    
+    start_date = date_parser.isoparse(date_range.get("start", "1970-01-01T00:00:00Z"))
+    end_date = date_parser.isoparse(date_range.get("end", datetime.datetime.utcnow().isoformat() + "Z"))
+    
+    filtered = []
+    for docket in dockets:
+        if agencies and docket.get("agencyID", "") not in agencies:
+            continue
+        
+        if docket_type and docket.get("docketType", "") != docket_type:
+            continue
+
+        try:
+            mod_date = date_parser.isoparse(docket.get("modifyDate", "1970-01-01T00:00:00Z"))
+        except Exception:
+            mod_date = datetime.datetime(1970, 1, 1)
+        if mod_date < start_date or mod_date > end_date:
+            continue
+        
+        filtered.append(docket)
+    
+    return filtered
 
 # Sort the combined results based on the given sort_type
 def sort_aoss_results(results, sort_type, desc=True):
@@ -64,11 +94,30 @@ def query(search_params):
 
     return sort_aoss_results(combined_results, search_params.get('sortParams').get('sortType'))
 
+# Query the OpenSearch API and append docket supplementary information
+def query(search_params): 
+    os_results = query_OpenSearch(search_params.get('searchTerm'))
+
+    print(os_results)
+
+    combined_results = append_docket_titles(os_results, connect())
+
+    sorted_results = sort_aoss_results(combined_results, search_params.get('sortParams').get('sortType'))
+    try:
+        sorted_results = json.loads(sorted_results)
+    except Exception:
+        sorted_results = []
+    
+    filtered_list = filter_dockets(sorted_results, search_params.get('filter_params'))
+    
+    return json.dumps(filtered_list, ensure_ascii=False)
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Please provide a search term")
+        print("Usage: python query.py <search_term> [<filter_params_json>]")
         sys.exit(1)
-
+    
     search_term = sys.argv[1]
     print(f"search_term: {search_term}")
     print(query(search_params))
