@@ -1,14 +1,13 @@
+from datetime import datetime
 from utils.query_opensearch import query_OpenSearch
 from utils.query_sql import append_docket_titles
 from utils.sql import connect
 import json
-
 import sys
 
+
+
 # Sort the list of json objects based on the given key
-
-import json
-
 def sort_aoss_results(results, sort_type, desc=True):
     """
     Sort a list of JSON objects based on the given sort_type.
@@ -35,28 +34,37 @@ def sort_aoss_results(results, sort_type, desc=True):
 
     # Validate sort_type
     valid_sort_types = {'dateModified', 'alphaByTitle', 'relevance'}
+
+    # Default to 'dateModified' if invalid
     if sort_type not in valid_sort_types:
         print("Invalid sort type. Defaulting to 'dateModified'")
         sort_type = 'dateModified'
 
-    # Return early if the list is empty
-    if not results:
-        return json.dumps(results)
-
-    # Sort
+    # Sort based on the sort_type given
     if sort_type == 'dateModified':
-        results.sort(key=lambda x: x.get('dateModified', ''), reverse=desc)
+
+        results.sort(
+            key=lambda x: datetime.strptime(
+                x.get('dateModified', '1900-01-01 00:00:00.000 +0000'),  # Default if missing
+                '%Y-%m-%d %H:%M:%S.%f %z'
+            ), reverse=desc)
+        
     elif sort_type == 'alphaByTitle':
         results.sort(key=lambda x: x.get('title', ''), reverse=not desc)
 
+    # Return sorted results as a JSON string for Lambda
     return json.dumps(results)
 
 
-def query(search_term, sort_type): 
-    os_results = query_OpenSearch(search_term)
+
+def query(search_params): 
+    os_results = query_OpenSearch(search_params.get('searchTerm'))
+
     print(os_results)
+
     combined_results = append_docket_titles(os_results, connect())
-    return sort_aoss_results(combined_results, sort_type)
+
+    return sort_aoss_results(combined_results, search_params.get('sortParams').get('sortType'))
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -65,4 +73,4 @@ if __name__ == '__main__':
 
     search_term = sys.argv[1]
     print(f"search_term: {search_term}")
-    print(query(search_term, 'dateModified'))
+    print(query(search_params))
