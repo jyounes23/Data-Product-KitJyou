@@ -89,6 +89,27 @@ def sort_aoss_results(results, sort_type, desc=True):
     # Return sorted results as a JSON string
     return results
 
+def drop_previous_results(searchTerm, sessionID, sortParams, filterParams):
+    
+    conn = connect()
+
+    try:
+        with conn.cursor() as cursor:
+            delete_query = """
+            DELETE FROM stored_results
+            WHERE search_term = %s AND session_id = %s AND sort_asc = %s AND sort_type = %s
+            AND filter_agencies = %s AND filter_date_start = %s AND filter_date_end = %s AND filter_rulemaking = %s
+            """
+            cursor.execute(delete_query, (searchTerm, sessionID, sortParams["desc"], sortParams["sortType"],
+                                          ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '', filterParams["dateRange"]["startDate"],
+                                          filterParams["dateRange"]["endDate"], filterParams["docketType"]))
+    except Exception as e:
+        print(f"Error deleting previous results for search term {searchTerm}")
+        print(e)
+
+    conn.commit()
+    conn.close()
+
 def storeDockets(dockets, searchTerm, sessionID, sortParams, filterParams, totalResults):
 
     conn = connect()
@@ -126,6 +147,7 @@ def storeDockets(dockets, searchTerm, sessionID, sortParams, filterParams, total
             print(e)
 
     conn.commit()
+    conn.close()
 
 def getSavedResults(searchTerm, sessionID, sortParams, filterParams):
     
@@ -164,6 +186,9 @@ def query(search_params):
     totalResults = perPage * pages
 
     if refreshResults:
+
+        drop_previous_results(searchTerm, sessionID, sortParams, filterParams)
+
         os_results = query_OpenSearch(searchTerm)
         results = append_docket_titles(os_results, connect())
 
@@ -199,7 +224,7 @@ if __name__ == '__main__':
     query_params = {
         "searchTerm": "gun",
         "pageNumber": 0,
-        "refreshResults": True,
+        "refreshResults": False,
         "sessionID": "session1",
         "sortParams": {
             "sortType": "dateModified",
