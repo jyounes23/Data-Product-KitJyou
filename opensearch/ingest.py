@@ -4,8 +4,8 @@ import boto3
 from create_client import create_client
 
 
-def ingest(client, document):
-    response = client.index(index = 'comments', body = document)
+def ingest(client, index, document):
+    response = client.index(index = index, body = document)
     print(response)
 
 def ingest_comment(client, bucket, key):
@@ -17,20 +17,36 @@ def ingest_comment(client, bucket, key):
         'docketId': data['data']['attributes']['docketId'],
         'commentId': data['data']['id']
     }
-    ingest(client, document)
+    ingest(client, 'comments', document)
 
 def ingest_all_comments(client, bucket):
     for obj in bucket.objects.all():
         if obj.key.endswith('.json') and ('/comments/' in obj.key):
             ingest_comment(client, bucket, obj.key)
 
+def extract_ids(filename):
+    base = os.path.splitext(filename)[0]
+
+    parts = base.split('-')
+
+    docket_id = '-'.join(parts[:3])
+
+    comment_id = docket_id + "-" +parts[3].split('_')[0]
+
+    return docket_id, comment_id
+
 def ingest_pdf_extracted(client, bucket, key):
     obj = bucket.Object(key)
     file_text = obj.get()['Body'].read().decode('utf-8')
+    
+    base_name = os.path.basename(key)
+    docket_id, comment_id = extract_ids(base_name)
+    
     document = {
-        'fileName': os.path.basename(key),
         'extractedText': file_text,
-        'extractionMethod': 'pdfminer'
+        'extractionMethod': 'pdfminer',
+        'docketId': docket_id,
+        'commentId': comment_id
     }
     ingest(client, 'comments_extracted_text', document)
 
