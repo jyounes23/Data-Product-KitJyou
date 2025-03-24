@@ -24,6 +24,15 @@ def ingest_all_comments(client, bucket):
         if obj.key.endswith('.json') and ('/comments/' in obj.key):
             ingest_comment(client, bucket, obj.key)
 
+def ingest_pdf_extracted(client, bucket, key):
+    obj = bucket.Object(key)
+    file_text = obj.get()['Body'].read().decode('utf-8')
+    document = {
+        'fileName': os.path.basename(key),
+        'extractedText': file_text,
+        'extractionMethod': 'pdfminer'
+    }
+    ingest(client, 'comments_extracted_text', document)
 
 if __name__ == '__main__':
     client = create_client()
