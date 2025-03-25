@@ -41,8 +41,6 @@ def query_OpenSearch(search_term):
                 "match": docket["matching_comments"]["doc_count"],
                 "total": docket["doc_count"]
             }
-            # "doc_count": docket["doc_count"],
-            # "matching_comments": docket["matching_comments"]["doc_count"]
         }
 
         for docket in dockets if docket["matching_comments"]["doc_count"] > 0 

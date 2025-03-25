@@ -220,8 +220,6 @@ def query(search_params):
                     "match": d[3],
                     "total": d[2]
                 },
-                # "doc_count": d[2],
-                # "matching_comments": d[3],
                 "matchQuality": d[4]
             })
         dockets = sorted(dockets, key=lambda x: x["searchRank"])
