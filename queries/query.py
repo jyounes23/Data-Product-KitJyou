@@ -15,7 +15,7 @@ def filter_dockets(dockets, filter_params=None):
     docket_type = filter_params.get("docketType", "")
     
     start_date = date_parser.isoparse(date_range.get("start", "1970-01-01T00:00:00Z"))
-    end_date = date_parser.isoparse(date_range.get("end", datetime.datetime.utcnow().isoformat() + "Z"))
+    end_date = date_parser.isoparse(date_range.get("end", datetime.now().isoformat() + "Z"))
     
     filtered = []
     for docket in dockets:
@@ -74,40 +74,174 @@ def sort_aoss_results(results, sort_type, desc=True):
 
         results.sort(
             key=lambda x: datetime.fromisoformat(
-                x.get('dateModified', '1900-01-01T00:00:00Z') 
+                x.get('modifyDate', '1970-01-01T00:00:00Z') 
             ), reverse=desc)
         
     elif sort_type == 'alphaByTitle':
         results.sort(key=lambda x: x.get('title', ''), reverse=not desc)
 
+    elif sort_type == 'relevance':
+        results.sort(key=lambda x: x.get('relevance_score', 0), reverse=desc)
+
+    for i, docket in enumerate(results):
+        docket["search_rank"] = i
+
     # Return sorted results as a JSON string
-    return json.dumps(results)
+    return results
 
+def drop_previous_results(searchTerm, sessionID, sortParams, filterParams):
+    
+    conn = connect()
 
-# Query the OpenSearch API and append docket supplementary information
-def query(search_params): 
-    os_results = query_OpenSearch(search_params.get('searchTerm'))
-
-    print(os_results)
-
-    combined_results = append_docket_titles(os_results, connect())
-
-    sorted_results = sort_aoss_results(combined_results, search_params.get('sortParams').get('sortType'))
     try:
-        sorted_results = json.loads(sorted_results)
-    except Exception:
-        sorted_results = []
-    
-    filtered_list = filter_dockets(sorted_results, search_params.get('filter_params'))
-    
-    return json.dumps(filtered_list, ensure_ascii=False)
+        with conn.cursor() as cursor:
+            delete_query = """
+            DELETE FROM stored_results
+            WHERE search_term = %s AND session_id = %s AND sort_asc = %s AND sort_type = %s
+            AND filter_agencies = %s AND filter_date_start = %s AND filter_date_end = %s AND filter_rulemaking = %s
+            """
+            cursor.execute(delete_query, (searchTerm, sessionID, sortParams["desc"], sortParams["sortType"],
+                                          ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '', filterParams["dateRange"]["startDate"],
+                                          filterParams["dateRange"]["endDate"], filterParams["docketType"]))
+    except Exception as e:
+        print(f"Error deleting previous results for search term {searchTerm}")
+        print(e)
 
+    conn.commit()
+    conn.close()
+
+def storeDockets(dockets, searchTerm, sessionID, sortParams, filterParams, totalResults):
+
+    conn = connect()
+
+    for i in range(min(totalResults, len(dockets))):
+        values = (
+            searchTerm,
+            sessionID,
+            sortParams["desc"],
+            sortParams["sortType"],
+            ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '',
+            filterParams["dateRange"]["startDate"],
+            filterParams["dateRange"]["endDate"],
+            filterParams["docketType"],
+            i,
+            dockets[i]["docketID"],
+            dockets[i]["doc_count"],
+            dockets[i]["matching_comments"],
+            dockets[i]["relevance_score"]
+        )
+
+        # Insert into the database
+        try:
+            with conn.cursor() as cursor:
+                insert_query = """
+                INSERT INTO stored_results (
+                    search_term, session_id, sort_asc, sort_type, filter_agencies, filter_date_start,
+                    filter_date_end, filter_rulemaking, search_rank, docket_id, total_comments, matching_comments,
+                    relevance_score
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                """
+                cursor.execute(insert_query, values)
+        except Exception as e:
+            print(f"Error inserting docket {dockets[i]['docketID']}")
+            print(e)
+
+    conn.commit()
+    conn.close()
+
+def getSavedResults(searchTerm, sessionID, sortParams, filterParams):
+    
+    conn = connect()
+
+    try:
+        with conn.cursor() as cursor:
+            select_query = """
+            SELECT search_rank, docket_id, total_comments, matching_comments, relevance_score FROM stored_results
+            WHERE search_term = %s AND session_id = %s AND sort_asc = %s AND sort_type = %s AND filter_agencies = %s
+            AND filter_date_start = %s AND filter_date_end = %s AND filter_rulemaking = %s
+            """
+            cursor.execute(select_query, (searchTerm, sessionID, sortParams["desc"], sortParams["sortType"],
+                                          ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '', filterParams["dateRange"]["startDate"],
+                                          filterParams["dateRange"]["endDate"], filterParams["docketType"]))
+            dockets = cursor.fetchall()
+    except Exception as e:
+        print(f"Error retrieving dockets for search term {searchTerm}")
+        print(e)
+
+    return dockets
+
+def query(search_params):
+
+    search_params = json.loads(search_params)
+
+    searchTerm = search_params["searchTerm"]
+    pageNumber = query_params["pageNumber"]
+    refreshResults = query_params["refreshResults"]
+    sessionID = query_params["sessionID"]
+    sortParams = query_params["sortParams"]
+    filterParams = query_params["filterParams"]
+
+    perPage = 10
+    pages = 10
+    totalResults = perPage * pages
+
+    if refreshResults:
+
+        drop_previous_results(searchTerm, sessionID, sortParams, filterParams)
+
+        os_results = query_OpenSearch(searchTerm)
+        results = append_docket_titles(os_results, connect())
+
+        for docket in results:
+            # temporary relevance score
+            docket["relevance_score"] = 1
+
+        filtered_results = filter_dockets(results, search_params.get('filterParams'))
+    
+        sorted_results = sort_aoss_results(filtered_results, search_params.get('sortParams').get('sortType'))
+
+        storeDockets(sorted_results, searchTerm, sessionID, sortParams, filterParams, totalResults)
+
+        return json.dumps(sorted_results[perPage * pageNumber:perPage * (pageNumber + 1)])
+
+    else:
+        dockets_raw = getSavedResults(searchTerm, sessionID, sortParams, filterParams)
+        dockets = []
+        for d in dockets_raw:
+            dockets.append({
+                "search_rank": d[0],
+                "docketID": d[1],
+                "doc_count": d[2],
+                "matching_comments": d[3],
+                "relevance_score": d[4]
+            })
+        dockets = sorted(dockets, key=lambda x: x["relevance_score"])
+        dockets = dockets[perPage * pageNumber:perPage * (pageNumber + 1)]
+        dockets = append_docket_titles(dockets, connect())
+        return json.dumps(dockets)
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Usage: python query.py <search_term> [<filter_params_json>]")
-        sys.exit(1)
-    
-    search_term = sys.argv[1]
-    print(f"search_term: {search_term}")
-    print(query(search_params))
+    query_params = {
+        "searchTerm": "gun",
+        "pageNumber": 0,
+        "refreshResults": False,
+        "sessionID": "session1",
+        "sortParams": {
+            "sortType": "dateModified",
+            "desc": True,
+        },
+        "filterParams": {
+            "agencies": [],
+            "dateRange": {
+                "startDate": "1970-01-01",
+                "endDate": "2025-03-21"
+            },
+            "docketType": ""
+        }
+    }
+
+    searchTerm = query_params["searchTerm"]
+    print(f"searchTerm: {searchTerm}")
+
+    print(query(json.dumps(query_params)))
+
