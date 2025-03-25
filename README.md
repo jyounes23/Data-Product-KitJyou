@@ -20,6 +20,9 @@ A guide to acquire, install and deploy the search capability via API, for SQL an
     brew link --force libpq
     ```
 
+- [Regulations.gov API Key](https://open.gsa.gov/api/regulationsgov/)
+   - Register for an API key at the top of the page
+
 ## Initial Setup
 
 Clone the `Data-Product-Kit` repository:
@@ -38,15 +41,16 @@ pip install -r requirements.txt
 
 Create a `.env` file in the parent directory with the following fields:
 ```bash
-OPENSEARCH_INITIAL_ADMIN_PASSWORD=your_secure_password
+OPENSEARCH_INITIAL_ADMIN_PASSWORD=<your_secure_password>
 OPENSEARCH_HOST=opensearch-node1
 OPENSEARCH_PORT=9200
 S3_BUCKET_NAME=presentationbucketcs334s25
 POSTGRES_DB=postgres
 POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your_secure_password
+POSTGRES_PASSWORD=password
 POSTGRES_HOST=db
 POSTGRES_PORT=5432
+REGULATIONS_API_KEY=<your_API_key>
 ```
 **NOTE:** For OpenSearch including a `$` or a `!` in the password as a special character may lead to issues when running docker compose later on (the following text gets interpreted as a shell variable), so avoid using them in your password.
 
@@ -129,9 +133,16 @@ docker-compose exec opensearch-node1 curl -X GET "http://opensearch-node1:9200"
 
 3. **Optional: Ingest Individual Docket from Mirrulations S3 Bucket:**
    ```bash
-   docker-compose exec sql-client python IngestFromS3.py <docket_id>
+   docker-compose exec sql-client python IngestDocket.py <docket_id>
    ```
    **Example Docket:** `DOS-2022-0004`
+
+4. **Optional: Ingest Agency Data From regulations.gov:**
+
+   To check for and insert missing agency data into the `agencies.txt` file, run:
+   ```bash
+   docker-compose exec sql-client python CheckAgencies.py
+   ```
 
 **IMPORTANT:** Additional documentation for all the scripts for SQL can be found [here](sql/syntax.md)
 
