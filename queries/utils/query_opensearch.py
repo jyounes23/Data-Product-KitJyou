@@ -36,9 +36,13 @@ def query_OpenSearch(search_term):
     # Create a list of dockets in json format that contains the docketId, docketTitle, the number of total comments, and the number of matching comments out of total comments
     dockets_list = [
         {
-            "docketID": docket["key"],
-            "doc_count": docket["doc_count"],
-            "matching_comments": docket["matching_comments"]["doc_count"]
+            "id": docket["key"],
+            "comments": {
+                "match": docket["matching_comments"]["doc_count"],
+                "total": docket["doc_count"]
+            }
+            # "doc_count": docket["doc_count"],
+            # "matching_comments": docket["matching_comments"]["doc_count"]
         }
 
         for docket in dockets if docket["matching_comments"]["doc_count"] > 0 

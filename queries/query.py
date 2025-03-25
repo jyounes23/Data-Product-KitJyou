@@ -26,7 +26,7 @@ def filter_dockets(dockets, filter_params=None):
             continue
 
         try:
-            mod_date = date_parser.isoparse(docket.get("modifyDate", "1970-01-01T00:00:00Z"))
+            mod_date = date_parser.isoparse(docket.get("dateModified", "1970-01-01T00:00:00Z"))
         except Exception:
             mod_date = datetime.datetime(1970, 1, 1)
         if mod_date < start_date or mod_date > end_date:
@@ -74,17 +74,17 @@ def sort_aoss_results(results, sort_type, desc=True):
 
         results.sort(
             key=lambda x: datetime.fromisoformat(
-                x.get('modifyDate', '1970-01-01T00:00:00Z') 
+                x.get('dateModified', '1970-01-01T00:00:00Z') 
             ), reverse=desc)
         
     elif sort_type == 'alphaByTitle':
         results.sort(key=lambda x: x.get('title', ''), reverse=not desc)
 
     elif sort_type == 'relevance':
-        results.sort(key=lambda x: x.get('relevance_score', 0), reverse=desc)
+        results.sort(key=lambda x: x.get('matchQuality', 0), reverse=desc)
 
     for i, docket in enumerate(results):
-        docket["search_rank"] = i
+        docket["searchRank"] = i
 
     # Return sorted results as a JSON string
     return results
@@ -101,8 +101,8 @@ def drop_previous_results(searchTerm, sessionID, sortParams, filterParams):
             AND filter_agencies = %s AND filter_date_start = %s AND filter_date_end = %s AND filter_rulemaking = %s
             """
             cursor.execute(delete_query, (searchTerm, sessionID, sortParams["desc"], sortParams["sortType"],
-                                          ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '', filterParams["dateRange"]["startDate"],
-                                          filterParams["dateRange"]["endDate"], filterParams["docketType"]))
+                                          ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '', filterParams["dateRange"]["start"],
+                                          filterParams["dateRange"]["end"], filterParams["docketType"]))
     except Exception as e:
         print(f"Error deleting previous results for search term {searchTerm}")
         print(e)
@@ -121,14 +121,14 @@ def storeDockets(dockets, searchTerm, sessionID, sortParams, filterParams, total
             sortParams["desc"],
             sortParams["sortType"],
             ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '',
-            filterParams["dateRange"]["startDate"],
-            filterParams["dateRange"]["endDate"],
+            filterParams["dateRange"]["start"],
+            filterParams["dateRange"]["end"],
             filterParams["docketType"],
             i,
-            dockets[i]["docketID"],
-            dockets[i]["doc_count"],
-            dockets[i]["matching_comments"],
-            dockets[i]["relevance_score"]
+            dockets[i]["id"],
+            dockets[i]["comments"]["total"],
+            dockets[i]["comments"]["match"],
+            dockets[i]["matchQuality"]
         )
 
         # Insert into the database
@@ -143,7 +143,7 @@ def storeDockets(dockets, searchTerm, sessionID, sortParams, filterParams, total
                 """
                 cursor.execute(insert_query, values)
         except Exception as e:
-            print(f"Error inserting docket {dockets[i]['docketID']}")
+            print(f"Error inserting docket {dockets[i]['id']}")
             print(e)
 
     conn.commit()
@@ -161,8 +161,8 @@ def getSavedResults(searchTerm, sessionID, sortParams, filterParams):
             AND filter_date_start = %s AND filter_date_end = %s AND filter_rulemaking = %s
             """
             cursor.execute(select_query, (searchTerm, sessionID, sortParams["desc"], sortParams["sortType"],
-                                          ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '', filterParams["dateRange"]["startDate"],
-                                          filterParams["dateRange"]["endDate"], filterParams["docketType"]))
+                                          ",".join(sorted(filterParams["agencies"])) if filterParams["agencies"] else '', filterParams["dateRange"]["start"],
+                                          filterParams["dateRange"]["end"], filterParams["docketType"]))
             dockets = cursor.fetchall()
     except Exception as e:
         print(f"Error retrieving dockets for search term {searchTerm}")
@@ -194,7 +194,7 @@ def query(search_params):
 
         for docket in results:
             # temporary relevance score
-            docket["relevance_score"] = 1
+            docket["matchQuality"] = 1
 
         filtered_results = filter_dockets(results, search_params.get('filterParams'))
     
@@ -202,29 +202,44 @@ def query(search_params):
 
         storeDockets(sorted_results, searchTerm, sessionID, sortParams, filterParams, totalResults)
 
-        return json.dumps(sorted_results[perPage * pageNumber:perPage * (pageNumber + 1)])
+        count_dockets = len(sorted_results)
+        count_pages = count_dockets // perPage
+        if count_dockets % perPage:
+            count_pages += 1
+
+        return json.dumps(sorted_results[perPage * pageNumber:perPage * (pageNumber + 1)]), count_pages
 
     else:
         dockets_raw = getSavedResults(searchTerm, sessionID, sortParams, filterParams)
         dockets = []
         for d in dockets_raw:
             dockets.append({
-                "search_rank": d[0],
-                "docketID": d[1],
-                "doc_count": d[2],
-                "matching_comments": d[3],
-                "relevance_score": d[4]
+                "searchRank": d[0],
+                "id": d[1],
+                "comments": {
+                    "match": d[3],
+                    "total": d[2]
+                },
+                # "doc_count": d[2],
+                # "matching_comments": d[3],
+                "matchQuality": d[4]
             })
-        dockets = sorted(dockets, key=lambda x: x["relevance_score"])
+        dockets = sorted(dockets, key=lambda x: x["searchRank"])
         dockets = dockets[perPage * pageNumber:perPage * (pageNumber + 1)]
+
+        count_dockets = len(dockets)
+        count_pages = count_dockets // perPage
+        if count_dockets % perPage:
+            count_pages += 1
+        
         dockets = append_docket_titles(dockets, connect())
-        return json.dumps(dockets)
+        return json.dumps(dockets), count_pages
 
 if __name__ == '__main__':
     query_params = {
         "searchTerm": "gun",
         "pageNumber": 0,
-        "refreshResults": False,
+        "refreshResults": True,
         "sessionID": "session1",
         "sortParams": {
             "sortType": "dateModified",
@@ -233,8 +248,8 @@ if __name__ == '__main__':
         "filterParams": {
             "agencies": [],
             "dateRange": {
-                "startDate": "1970-01-01",
-                "endDate": "2025-03-21"
+                "start": "1970-01-01T00:00:00Z",
+                "end": "2025-03-21T00:00:00Z"
             },
             "docketType": ""
         }
@@ -243,5 +258,13 @@ if __name__ == '__main__':
     searchTerm = query_params["searchTerm"]
     print(f"searchTerm: {searchTerm}")
 
-    print(query(json.dumps(query_params)))
+    dockets, total_pages = query(json.dumps(query_params))
+
+    result = {
+        'currentPage': query_params["pageNumber"],
+        'totalPages': total_pages,
+        'dockets': dockets
+    }
+
+    print(json.dumps(result, indent=4))
 
