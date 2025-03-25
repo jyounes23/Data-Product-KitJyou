@@ -35,7 +35,7 @@ def get_db_connection():
 
 def append_docket_titles(dockets_list, db_conn=None):
     '''
-    Append docket titles using docket ids from OpenSearch query results
+    Append additional fields using docket ids from OpenSearch query results
     '''
     # Set up logging
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -51,9 +51,11 @@ def append_docket_titles(dockets_list, db_conn=None):
 
         # Query to fetch docket titles
         query = """
-        SELECT docket_id, docket_title, agency_id, modify_date
-        FROM dockets 
-        WHERE docket_id = ANY(%s)
+        SELECT d.docket_id, d.docket_title, d.modify_date, a.agency_id, a.agency_name
+        FROM dockets d 
+        JOIN agencies a 
+        ON d.agency_id = a.agency_id 
+        WHERE d.docket_id = ANY(%s)
         """
 
         cursor.execute(query, (docket_ids,))
@@ -61,22 +63,24 @@ def append_docket_titles(dockets_list, db_conn=None):
         # Fetch results and format them as JSON
         results = cursor.fetchall()
         docket_titles = {row[0]: row[1] for row in results}
-        agency_ids = {row[0]: row[2] for row in results}
-        modify_dates = {row[0]: row[3].isoformat() for row in results}
+        modify_dates = {row[0]: row[2].isoformat() for row in results}
+        agency_ids = {row[0]: row[3] for row in results}
+        agency_names = {row[0]: row[4] for row in results}
 
-        # Append docket titles to the dockets list
+        # Append additional fields to the dockets list
         for item in dockets_list:
             item["docketTitle"] = docket_titles.get(item["docketID"], "Title Not Found")
-            item["agencyID"] = agency_ids.get(item["docketID"], "Agency Not Found")
             item["modifyDate"] = modify_dates.get(item["docketID"], "Date Not Found")
+            item["agencyID"] = agency_ids.get(item["docketID"], "Agency Not Found")
+            item["agencyName"] = agency_names.get(item["docketID"], "Agency Name Not Found")
 
         dockets_list = [item for item in dockets_list if item["docketTitle"] != "Title Not Found"]
 
-        logging.info("Docket titles successfully appended.")
+        logging.info("Successfully appended additional fields.")
 
     except Exception as e:
         logging.error(f"Error executing SQL query: {e}")
-        raise DataRetrievalError("Failed to retrieve docket titles")
+        raise DataRetrievalError("Failed to retrieve additional fields.")
 
     finally:
         cursor.close()
@@ -84,5 +88,5 @@ def append_docket_titles(dockets_list, db_conn=None):
             conn.close()
         logging.info("Database connection closed.")
 
-    # Return the updated list, ensuring it is in JSON format
+    # Return the updated list
     return dockets_list
