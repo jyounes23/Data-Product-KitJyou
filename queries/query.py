@@ -173,15 +173,15 @@ def getSavedResults(searchTerm, sessionID, sortParams, filterParams):
 
 def calc_relevance_score(docket):
     try:
-        total_comments = docket.get("doc_count", 0)
-        matching_comments = docket.get("matching_comments", 0)
+        total_comments = docket.get("comments", {}).get("total", 0)
+        matching_comments = docket.get("comments", {}).get("match", 0)
         ratio = matching_comments / total_comments if total_comments > 0 else 0
-        modify_date = date_parser.isoparse(docket.get("modifyDate", "1970-01-01T00:00:00Z"))
+        modify_date = date_parser.isoparse(docket.get("dateModified", "1970-01-01T00:00:00Z"))
         age_days = (datetime.now() - modify_date).days
         decay = exp(-age_days / 365)
         return total_comments * (ratio ** 2) * decay
     except Exception as e:
-        print(f"Error calculating relevance score for docket {docket.get('docketID', 'unknown')}: {e}")
+        print(f"Error calculating relevance score for docket {docket.get('id', 'unknown')}: {e}")
         return 0
 
 def query(search_params):
