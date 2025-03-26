@@ -64,3 +64,12 @@ Example Usage: `docker-compose exec sql-client python IngestLocal.py dockets-dat
 The script `Query.py` will query the database.
 
 Example Usage: `docker-compose exec sql-client python Query.py "SELECT * FROM dockets;`
+
+
+# Check Agencies List
+
+The script `CheckAgencies.py` will check the regulations.gov database through the API to see if there are any missing agencies in the `agencies.txt` and update the file if necessary.
+
+Example usage: `docker-compose exec sql-client python CheckAgencies.py`
+
+[You can click here to view rate limits for the regulations.gov API usage.](https://api.data.gov/docs/rate-limits/)

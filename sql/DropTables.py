@@ -43,6 +43,9 @@ def drop_dockets_table(conn: psycopg.Connection):
 def drop_documents_table(conn: psycopg.Connection):
     _drop_table(conn, "documents")
 
+def drop_stored_results_table(conn: psycopg.Connection):
+    _drop_table(conn, "stored_results")
+
 
 def drop_agencies_table(conn: psycopg.Connection):
     _drop_table(conn, "agencies")
