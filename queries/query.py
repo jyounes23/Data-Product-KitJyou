@@ -1,4 +1,5 @@
 import json
+from math import exp
 from dateutil import parser as date_parser
 from datetime import datetime
 from queries.utils.query_opensearch import query_OpenSearch
@@ -169,6 +170,18 @@ def getSavedResults(searchTerm, sessionID, sortParams, filterParams):
 
     return dockets
 
+def calc_relevance_score(docket):
+    try:
+        total_comments = docket.get("comments", {}).get("total", 0)
+        matching_comments = docket.get("comments", {}).get("match", 0)
+        ratio = matching_comments / total_comments if total_comments > 0 else 0
+        modify_date = date_parser.isoparse(docket.get("dateModified", "1970-01-01T00:00:00Z"))
+        age_days = (datetime.now() - modify_date).days
+        decay = exp(-age_days / 365)
+        return total_comments * (ratio ** 2) * decay
+    except Exception as e:
+        print(f"Error calculating relevance score for docket {docket.get('id', 'unknown')}: {e}")
+        return 0
 
 def search(search_params):
     searchTerm = search_params["searchTerm"]
@@ -189,8 +202,7 @@ def search(search_params):
         results = append_docket_titles(os_results, connect())
 
         for docket in results:
-            # temporary relevance score
-            docket["matchQuality"] = 1
+            docket["matchQuality"] = calc_relevance_score(docket)
 
         print(results)
 
@@ -257,7 +269,8 @@ def search(search_params):
         return json.dumps(ret)
 
 
-if __name__ == "__main__":
+if __name__ 
+"__main__":
     query_params = {
         "searchTerm": "gun",
         "pageNumber": 0,
