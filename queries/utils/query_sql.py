@@ -47,7 +47,7 @@ def append_docket_titles(dockets_list, db_conn=None):
 
     try:
         # Extract docket IDs from dockets list
-        docket_ids = [item["docketID"] for item in dockets_list]
+        docket_ids = [item["id"] for item in dockets_list]
 
         # Query to fetch docket titles
         query = """
@@ -69,12 +69,12 @@ def append_docket_titles(dockets_list, db_conn=None):
 
         # Append additional fields to the dockets list
         for item in dockets_list:
-            item["docketTitle"] = docket_titles.get(item["docketID"], "Title Not Found")
-            item["modifyDate"] = modify_dates.get(item["docketID"], "Date Not Found")
-            item["agencyID"] = agency_ids.get(item["docketID"], "Agency Not Found")
-            item["agencyName"] = agency_names.get(item["docketID"], "Agency Name Not Found")
+            item["title"] = docket_titles.get(item["id"], "Title Not Found")
+            item["dateModified"] = modify_dates.get(item["id"], "Date Not Found")
+            item["agencyID"] = agency_ids.get(item["id"], "Agency Not Found")
+            item["agencyName"] = agency_names.get(item["id"], "Agency Name Not Found")
 
-        dockets_list = [item for item in dockets_list if item["docketTitle"] != "Title Not Found"]
+        dockets_list = [item for item in dockets_list if item["title"] != "Title Not Found"]
 
         logging.info("Successfully appended additional fields.")
 
