@@ -17,29 +17,24 @@ search_term = sys.argv[1]
 print(f"Searching for: {search_term}")
 
 query = {
-    "size": 0,  # No need to fetch individual documents
+    "size": 0,
     "aggs": 
     {
         "docketId_stats": 
         {
             "terms": 
             {
-                "field": "commentId.keyword",  # Use .keyword for exact match on text fields
-                "size": 20 # number of matching extracted texts to return
+                "field": "docketId.keyword",  # Use .keyword for exact match on text fields
+                "size": 1000 # number of matching extracted texts to return
             },
             "aggs": 
             {
-                "matching_documents": 
+                "matching_attachments": 
                 {
                     "filter": {
-                        "bool": 
-                        {
-                            "should": 
-                            [
-                                {"match": {"extractedText": search_term}}  # Searches in any text block
-                            ],
-                            "minimum_should_match": 1  # Ensures at least one match
-                        }
+                        "match": {
+                                "extractedText": search_term # Searches in any text block
+                            }
                     }
                 }
             }
@@ -61,9 +56,9 @@ total_documents = index_stats["count"]
 
 comments = [
     {
-        "commentID": comment["key"],
+        "docketId": comment["key"],
         "document_count": comment["document_count"],
-        "matching_documents": comment["matching_documents"]["document_count"]
+        "matching_attachments": comment["matching_attachments"]["document_count"]
     }
     
     for comment in comments
