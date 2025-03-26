@@ -269,8 +269,7 @@ def search(search_params):
         return json.dumps(ret)
 
 
-if __name__ 
-"__main__":
+if __name__=="__main__":
     query_params = {
         "searchTerm": "gun",
         "pageNumber": 0,
