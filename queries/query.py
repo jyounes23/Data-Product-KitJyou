@@ -207,8 +207,7 @@ def query(search_params):
         results = append_docket_titles(os_results, connect())
 
         for docket in results:
-            # temporary relevance score
-            docket["matchQuality"] = 1
+            docket["matchQuality"] = calc_relevance_score(docket)
 
         filtered_results = filter_dockets(results, search_params.get('filterParams'))
     
