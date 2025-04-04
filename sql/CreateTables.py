@@ -87,7 +87,8 @@ def create_dockets_table(conn: psycopg.Connection):
                     short_title VARCHAR,
                     flex_subtype1 TEXT,
                     flex_subtype2 TEXT,
-                    docket_title VARCHAR(500)
+                    docket_title VARCHAR(500),
+                    docket_abstract TEXT
                 );
             """
     _create_table(conn, query, "dockets")
@@ -234,9 +235,8 @@ def main():
     create_dockets_table(conn)
     create_documents_table(conn)
     create_comments_table(conn)
-    create_stored_results_table(conn)
-    
     create_agencies_table(conn)
+    create_stored_results_table(conn)
 
     # Insert data into the agencies table
     insert_agencies_data(conn, "agencies.txt")

@@ -51,7 +51,7 @@ def append_docket_titles(dockets_list, db_conn=None):
 
         # Query to fetch docket titles
         query = """
-        SELECT d.docket_id, d.docket_title, d.modify_date, a.agency_id, a.agency_name
+        SELECT d.docket_id, d.docket_title, d.modify_date, a.agency_id, a.agency_name, d.docket_type, d.docket_abstract
         FROM dockets d 
         JOIN agencies a 
         ON d.agency_id = a.agency_id 
@@ -66,6 +66,8 @@ def append_docket_titles(dockets_list, db_conn=None):
         modify_dates = {row[0]: row[2].isoformat() for row in results}
         agency_ids = {row[0]: row[3] for row in results}
         agency_names = {row[0]: row[4] for row in results}
+        docket_types = {row[0]: row[5] for row in results}
+        docket_abstracts = {row[0]: row[6] for row in results}
 
         # Append additional fields to the dockets list
         for item in dockets_list:
@@ -73,6 +75,8 @@ def append_docket_titles(dockets_list, db_conn=None):
             item["dateModified"] = modify_dates.get(item["id"], "Date Not Found")
             item["agencyID"] = agency_ids.get(item["id"], "Agency Not Found")
             item["agencyName"] = agency_names.get(item["id"], "Agency Name Not Found")
+            item["docketType"] = docket_types.get(item["id"], "Docket Type Not Found")
+            item["docketAbstract"] = docket_abstracts.get(item["id"], "Docket Abstract Not Found")
 
         dockets_list = [item for item in dockets_list if item["title"] != "Title Not Found"]
 
