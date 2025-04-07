@@ -11,13 +11,16 @@ def get_data_from_file(file_path):
             file_text = file.read()
             method = file_path.split('/')[-2]
             base_name = os.path.basename(file_path)
-            comment_id = base_name.split("_attachment")[0]
+            comment_id, remainder = base_name.split("_attachment_")
+            attachment_id = remainder.split("_extracted")[0]
+            attachment_id = comment_id + "-" + attachment_id
             docket_id = "-".join(comment_id.split("-")[:-1])
             document = {
                 'extractedText': file_text,
                 'extractedMethod': method,
                 'docketId': docket_id,
-                'commentId': comment_id
+                'commentId': comment_id,
+                'attachmentId': attachment_id,
             }
             return document
         except Exception as e:
@@ -41,10 +44,10 @@ def  bulk_ingest_all(client, directory_name, index_name, max_mb_per_bulk):
                 document = get_data_from_file(os.path.join(dirpath, filename))
                 if not document:
                     continue
-                comment_id = document['commentId']
+                attachment_id = document['attachmentId']
             
                 # the action line is used to specify the index name
-                action = f'{{"index": {{"_index": "{index_name}", "_id": "{comment_id}"}}}}\n'
+                action = f'{{"index": {{"_index": "{index_name}", "_id": "{attachment_id}"}}}}\n'
                 # the data_string is the document to be ingested
                 data_string = json.dumps(document) + '\n'
 
